@@ -3,6 +3,7 @@ class Character:
         self.name = name
         self.gp = 0
         self.mc = 0
+        self.xp = -150
 
     character_list = []
 

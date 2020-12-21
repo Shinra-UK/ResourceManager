@@ -23,7 +23,7 @@ def main():
     print(test_mc_gee)
     print(test_mo_jo)
     print(characters.Character.character_list)
-    discordintegration.discord(characters.Character.character_list)
+    discordintegration.discord_integration(characters.Character.character_list)
 
 
 if __name__ == "__main__":
