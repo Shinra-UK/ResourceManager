@@ -29,7 +29,7 @@ def discord_integration(character_list):
                             value=f'> Gold: {x.gp}\n> Mirror Coins: {x.mc}\n> Exp: {x.xp}',
                             inline=False)
         response = embed
-        await ctx.send(embed = response)
+        await ctx.send(embed=response)
 
     @bot.command(name='CreateCharacter')
     async def create_character(ctx, name):
@@ -37,15 +37,13 @@ def discord_integration(character_list):
         response = f'{name} has arrived!'
         await ctx.send(response)
 
-    @bot.command(name='Ammend')
-    async def ammend_character(ctx, name, attribute, mod):
+    @bot.command(name='Amend')
+    async def amend_character(ctx, name, attribute, mod):
         character = utilities.find(character_list, "name", name)
-        if (character = None):
+        if (character == None):
             response = f"Unable to find a character with the name {name}"
         else:
-            response = character.ammend(attribute, mod)
+            response = character.amend(attribute, mod)
         await ctx.send(response)
-
-
 
     bot.run(DISCORD_TOKEN)
