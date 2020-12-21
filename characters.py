@@ -32,6 +32,12 @@ def create_character(name):
     Character.character_list.append(new_character)
     return new_character
 
-def find_character(name):
-    for x in Character.character_list:
-        pass
+#retruns the first object found
+def find(list, attribute, value):
+    for x in list:
+        if getattr(x,attribute) == value:
+            print("i found it!")
+            print(x)
+            break
+    else:
+        x = None

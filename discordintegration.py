@@ -38,9 +38,8 @@ def discord_integration(character_list):
 
     @bot.command(name='Ammend')
     async def ammend_character(ctx, name, attribute, mod):
+        characters.find_character(search)
 
-        characters.create_character(name)
-        response = f'{name} has arrived!'
         await ctx.send(response)
 
 

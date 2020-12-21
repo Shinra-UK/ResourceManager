@@ -27,6 +27,7 @@ def main():
     test_mo_jo.ammend("name", 540)
     print(test_mo_jo.character_list)
     print(test_mc_gee.character_list)
+    print(characters.find(characters.Character.character_list,"gp",0))
     #discordintegration.discord_integration(characters.Character.character_list)
     print("Goodbye World!")
 
