@@ -1,4 +1,5 @@
 from config import DISCORD_TOKEN, COMMAND_PREFIX
+import characters
 import discord
 from discord.ext import commands
 
@@ -29,6 +30,19 @@ def discord_integration(character_list):
         response = embed
         await ctx.send(embed = response)
 
+    @bot.command(name='CreateCharacter')
+    async def create_character(ctx, name):
+        characters.create_character(name)
+        response = f'{name} has arrived!'
+        await ctx.send(response)
+
+    @bot.command(name='Ammend')
+    async def ammend_character(ctx, name, attribute, mod):
+
+        characters.create_character(name)
+        response = f'{name} has arrived!'
+        await ctx.send(response)
+
+
+
     bot.run(DISCORD_TOKEN)
-    print(character_list)
-    print("Goodbye World!")
