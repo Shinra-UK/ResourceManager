@@ -4,7 +4,7 @@ import utilities
 import discord
 from discord.ext import commands
 
-bot = commands.Bot(command_prefix=COMMAND_PREFIX)
+bot = commands.Bot(command_prefix=COMMAND_PREFIX, case_insensitive=True)
 
 
 def discord_integration(character_list):
@@ -12,7 +12,7 @@ def discord_integration(character_list):
     async def on_ready():
         print(f'{bot.user.name} is online.')
 
-    @bot.command(name='Help')
+    @bot.command(name='HelpMe')
     async def helpme(ctx):
         response = "Help is on the way!"
         await ctx.send(response)
@@ -34,12 +34,13 @@ def discord_integration(character_list):
     @bot.command(name='CreateCharacter')
     async def create_character(ctx, name):
         characters.create_character(name)
-        response = f'{name} has arrived!'
+        response = f'{name.title()} has arrived!'
         await ctx.send(response)
 
     @bot.command(name='Amend')
     async def amend_character(ctx, name, attribute, mod):
-        character = utilities.find(character_list, "name", name)
+        attribute = attribute.lower()
+        character = utilities.find(character_list, "name", name.title())
         if character is None:
             response = f"Unable to find a character with the name {name}"
         else:
