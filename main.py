@@ -8,12 +8,12 @@ __version__ = "0.0.1"
 __license__ = "N/A"
 
 import characters
+import utilities
 import discordintegration
 import logging
 
 
 logging.basicConfig(level=logging.INFO)
-
 
 def main():
     """ Main entry point of the app """
@@ -27,7 +27,9 @@ def main():
     test_mo_jo.ammend("name", 540)
     print(test_mo_jo.character_list)
     print(test_mc_gee.character_list)
-    print(characters.find(characters.Character.character_list,"gp",0))
+    print(utilities.find(characters.Character.character_list,"gp",0))
+    print(utilities.find(characters.Character.character_list, "gp", 2))
+
     #discordintegration.discord_integration(characters.Character.character_list)
     print("Goodbye World!")
 

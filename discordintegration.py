@@ -1,5 +1,6 @@
 from config import DISCORD_TOKEN, COMMAND_PREFIX
 import characters
+import utilities
 import discord
 from discord.ext import commands
 
@@ -38,8 +39,11 @@ def discord_integration(character_list):
 
     @bot.command(name='Ammend')
     async def ammend_character(ctx, name, attribute, mod):
-        characters.find_character(search)
-
+        character = utilities.find(character_list, "name", name)
+        if (character = None):
+            response = f"Unable to find a character with the name {name}"
+        else:
+            response = character.ammend(attribute, mod)
         await ctx.send(response)
 
 
