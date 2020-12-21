@@ -40,7 +40,7 @@ def discord_integration(character_list):
     @bot.command(name='Amend')
     async def amend_character(ctx, name, attribute, mod):
         character = utilities.find(character_list, "name", name)
-        if (character == None):
+        if character is None:
             response = f"Unable to find a character with the name {name}"
         else:
             response = character.amend(attribute, mod)

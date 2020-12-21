@@ -1,6 +1,6 @@
 class Character:
     def __init__(self, name):
-        self.name = name
+        self.name = title(name)
         self.gp = 0
         self.mc = 0
         self.xp = -150

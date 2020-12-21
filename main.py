@@ -30,7 +30,7 @@ def main():
     print(utilities.find(characters.Character.character_list, "gp", 0))
     print(utilities.find(characters.Character.character_list, "gp", 2))
 
-    # discordintegration.discord_integration(characters.Character.character_list)
+    discordintegration.discord_integration(characters.Character.character_list)
     print("Goodbye World!")
 
 
