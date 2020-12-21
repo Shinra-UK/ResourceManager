@@ -19,8 +19,11 @@ def main():
     """ Main entry point of the app """
     print("Hello World!")
     test_mc_gee = characters.createCharacter("Test Mcgee")
+    test_mo_jo = characters.createCharacter("Test Mo Jo")
     print(test_mc_gee)
-    discordintegration.discord()
+    print(test_mo_jo)
+    print(characters.Character.character_list)
+    discordintegration.discord(characters.Character.character_list)
 
 
 if __name__ == "__main__":
