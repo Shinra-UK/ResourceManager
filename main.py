@@ -9,12 +9,19 @@ __license__ = "N/A"
 
 import characters
 import discordintegration
+import logging
+
+
+logging.basicConfig(level=logging.INFO)
+
 
 def main():
     """ Main entry point of the app """
     print("Hello World!")
-    characters.createCharacter()
+    test_mc_gee = characters.createCharacter("Test Mcgee")
+    print(test_mc_gee)
     discordintegration.discord()
+
 
 if __name__ == "__main__":
     """ This is executed when run from the command line """

@@ -5,6 +5,8 @@ class Character:
         self.gp = 0
         self.mc = 0
 
-def createCharacter():
-    testChar = Character("Test")
-    print(testChar.name)
+def createCharacter(name):
+    newCharacter = Character(name)
+    print(newCharacter.name + " Has been created")
+    return newCharacter
+
