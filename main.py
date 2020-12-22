@@ -7,8 +7,9 @@ __author__ = "Shinra-UK"
 __version__ = "0.0.2"
 __license__ = "N/A"
 
-import discordintegration
 import logging
+
+import discordintegration
 import tests
 
 logging.basicConfig(level=logging.INFO)

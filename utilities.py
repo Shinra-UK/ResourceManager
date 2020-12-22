@@ -1,5 +1,6 @@
 import numbers
 
+
 # returns the first object found
 def find(directory, attribute, value):
     for x in directory:
@@ -7,6 +8,7 @@ def find(directory, attribute, value):
             return x
     else:
         return None
+
 
 def create(entity, name):
     name = name.title()
@@ -22,7 +24,13 @@ def create(entity, name):
         existing.msg = f'{existing.name} is already here.'
         return existing
 
+
 class Entity:
+    def __init__(self, name):
+        self.name = name
+        self.gp = 0
+
+    AMENDABLE = "gp"
     directory = []
 
     def amend(self, attribute, mod):

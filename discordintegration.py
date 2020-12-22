@@ -17,9 +17,6 @@ entities = {'Character': characters.Character,
             'A': utilities.Entity
             }
 
-character_list = characters.Character.character_list
-
-
 
 def discord_integration():
     @bot.event
@@ -46,22 +43,16 @@ def discord_integration():
 
             embed.add_field(name=f'**{x.name}**',
                             value=value,
-                            #value=f'> Gold: {x.gp}\n> Mirror Coins: {x.mc}\n> Exp: {x.xp}',
+                            # value=f'> Gold: {x.gp}\n> Mirror Coins: {x.mc}\n> Exp: {x.xp}',
                             inline=False)
         response = embed
         await ctx.send(embed=response)
 
-    # @bot.command(name='CreateCharacter')
-    # async def create_character(ctx, name):
-    #     character = characters.create_character(name)
-    #     response = character.msg
-    #     await ctx.send(response)
-
     @bot.command(name='Create')
-    async def create(ctx,entity_type,name):
+    async def create(ctx, entity_type, name):
         entity_type = entity_type.title()
         entity = entities[entity_type]
-        new = utilities.create(entity,name)
+        new = utilities.create(entity, name)
         response = new.msg
         await ctx.send(response)
 
@@ -75,15 +66,5 @@ def discord_integration():
         else:
             response = entity.amend(attribute, mod)
         await ctx.send(response)
-
-    # @bot.command(name='Amend')
-    # async def amend_character(ctx, name, attribute, mod):
-    #     attribute = attribute.lower()
-    #     character = utilities.find(character_list, "name", name.title())
-    #     if character is None:
-    #         response = f"Unable to find a character with the name {name}"
-    #     else:
-    #         response = character.amend(attribute, mod)
-    #     await ctx.send(response)
 
     bot.run(DISCORD_TOKEN)
