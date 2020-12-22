@@ -4,12 +4,23 @@ Module Docstring
 """
 
 __author__ = "Shinra-UK"
-__version__ = "0.0.1"
+__version__ = "0.0.2"
 __license__ = "N/A"
+
+import discordintegration
+import logging
+import tests
+
+logging.basicConfig(level=logging.INFO)
+
 
 def main():
     """ Main entry point of the app """
     print("Hello World!")
+    tests.character_tests()
+
+    discordintegration.discord_integration()
+    print("Goodbye World!")
 
 
 if __name__ == "__main__":
