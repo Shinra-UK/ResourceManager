@@ -2,7 +2,7 @@ import numbers
 import utilities
 
 
-class Character:
+class Character(utilities.Entity):
     def __init__(self, name):
         self.name = name
         self.gp = 0
@@ -35,17 +35,18 @@ class Character:
 
     AMENDABLE = ("gp", "mc", "xp")
     character_list = []
+    directory = []
 
 
-def create_character(name):
-    existing_character = utilities.find(Character.character_list, "name", name.title())
-    if existing_character is None:
-        name = name.title()
-        new_character = Character(name)
-        print(new_character.name + " Has been created")
-        Character.character_list.append(new_character)
-        new_character.msg = f'{new_character.name} has arrived!'
-        return new_character
-    else:
-        existing_character.msg = f'{existing_character.name} is already here.'
-        return existing_character
+# def create_character(name):
+#     existing_character = utilities.find(Character.character_list, "name", name.title())
+#     if existing_character is None:
+#         name = name.title()
+#         new_character = Character(name)
+#         print(new_character.name + " Has been created")
+#         Character.character_list.append(new_character)
+#         new_character.msg = f'{new_character.name} has arrived!'
+#         return new_character
+#     else:
+#         existing_character.msg = f'{existing_character.name} is already here.'
+#         return existing_character

@@ -1,12 +1,17 @@
 from config import DISCORD_TOKEN, COMMAND_PREFIX
 import characters
+import settlements
 import utilities
 import discord
 from discord.ext import commands
 
 bot = commands.Bot(command_prefix=COMMAND_PREFIX, case_insensitive=True)
 
+entities = {'Character': characters.Character,
+            'Settlement': settlements.Settlement}
+
 character_list = characters.Character.character_list
+
 
 
 def discord_integration():
@@ -37,6 +42,13 @@ def discord_integration():
     async def create_character(ctx, name):
         character = characters.create_character(name)
         response = character.msg
+        await ctx.send(response)
+
+    @bot.command(name='Create')
+    async def create(ctx,entity_type,name):
+        entity = entities[entity_type]
+        new = utilities.create(entity,name)
+        response = new.msg
         await ctx.send(response)
 
     @bot.command(name='Amend')

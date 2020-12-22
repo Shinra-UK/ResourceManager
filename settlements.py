@@ -2,7 +2,7 @@ import numbers
 import utilities
 
 
-class Settlement:
+class Settlement(utilities.Entity):
     def __init__(self, name):
         self.name = name
         self.wood = 0
@@ -39,15 +39,15 @@ class Settlement:
     settlement_list = []
 
 
-def create_settlement(name):
-    existing_settlement = utilities.find(Settlement.settlement_list, "name", name.title())
-    if existing_settlement is None:
-        name = name.title()
-        new_settlement = Settlement(name)
-        print(new_settlement.name + " Has been created")
-        Settlement.settlement_list.append(new_settlement)
-        new_settlement.msg = f'{new_settlement.name} has been founded!'
-        return new_settlement
-    else:
-        existing_settlement.msg = f'{existing_settlement.name} already exists.'
-        return existing_settlement
+# def create_settlement(name):
+#     existing_settlement = utilities.find(Settlement.settlement_list, "name", name.title())
+#     if existing_settlement is None:
+#         name = name.title()
+#         new_settlement = Settlement(name)
+#         print(new_settlement.name + " Has been created")
+#         Settlement.settlement_list.append(new_settlement)
+#         new_settlement.msg = f'{new_settlement.name} has been founded!'
+#         return new_settlement
+#     else:
+#         existing_settlement.msg = f'{existing_settlement.name} already exists.'
+#         return existing_settlement

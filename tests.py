@@ -2,26 +2,41 @@ import characters
 import settlements
 import utilities
 
+entities = {'Character': characters.Character,
+            'Settlement': settlements.Settlement}
 
 def character_tests():
+    entity_type = entities['Character']
     print("Starting Character Tests")
-    test_mc_gee = characters.create_character("Test Mcgee")
-    test_mo_jo = characters.create_character("Test Mo Jo")
+    test_mc_gee = utilities.create(entity_type,"Test Mcgee")
+    test_mo_jo = utilities.create(entity_type,"Test Mo Jo")
     test_mo_jo.amend("gp", 20)
-    test_mo_jo.amend("gp", 200)
+    test_mo_jo.amend("gP", 200)
+    test_mo_jo.amend("gp", -10)
     test_mo_jo.amend("gp", -640)
-    test_mo_jo.amend("gp", -40)
     test_mo_jo.amend("name", 540)
-    print(test_mo_jo.character_list)
-    print(test_mc_gee.character_list)
-    print(utilities.find(characters.Character.character_list, "gp", 0))
-    print(utilities.find(characters.Character.character_list, "gp", 2))
-    print("End of Character Tests")
+    test_mo_jo.amend("gghtrhjth", 540)
+    print(test_mo_jo.directory)
+    print(test_mc_gee.directory)
+    print(utilities.find(characters.Character.directory, "name", "Test Mcgee"))
+    print(utilities.find(characters.Character.directory, "gp", 2))
+    print(utilities.find(characters.Character.directory, "gp", 0))
+    bob = utilities.create(characters.Character,"bob")
+    bob1 = utilities.create(characters.Character, "bob")
+    bob2 = utilities.create(characters.Character, "bob")
+    print(bob)
+    print(bob.msg)
+    print(bob1)
+    print(bob2)
+    print(utilities.Entity.directory)
+    print("End of Character Tests\n")
 
 def settlement_tests():
     print("Starting Settlement Tests")
-    town1 = settlements.create_settlement("test town one")
-    town2 = settlements.create_settlement("test town two")
+    entity_type = entities['Settlement']
+    town1 = utilities.create(entity_type,"test town one")
+    town2 = utilities.create(entity_type,"test town two")
     print(town1)
     print(town2)
-    print("End of Character Tests")
+    print(utilities.Entity.directory)
+    print("End of Settlement Tests")
