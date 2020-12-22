@@ -36,7 +36,7 @@ class Settlement(utilities.Entity):
     #     return message
 
     AMENDABLE = ("wood", "stone", "ore","metal","gp")
-    settlement_list = []
+    directory = []
 
 
 # def create_settlement(name):

@@ -8,7 +8,14 @@ from discord.ext import commands
 bot = commands.Bot(command_prefix=COMMAND_PREFIX, case_insensitive=True)
 
 entities = {'Character': characters.Character,
-            'Settlement': settlements.Settlement}
+            'Settlement': settlements.Settlement,
+            'Characters': characters.Character,
+            'Settlements': settlements.Settlement,
+            'All': utilities.Entity,
+            'C': characters.Character,
+            'S': settlements.Settlement,
+            'A': utilities.Entity
+            }
 
 character_list = characters.Character.character_list
 
@@ -24,28 +31,35 @@ def discord_integration():
         response = "Help is on the way!"
         await ctx.send(response)
 
-    @bot.command(name='CharacterList')
-    async def list_characters(ctx):
-        embed = discord.Embed(title=f"__**{ctx.guild.name} Characters:**__",
+    @bot.command(name='List')
+    async def list_entities(ctx, entity_type):
+        entity_type = entity_type.title()
+        embed = discord.Embed(title=f"__**{ctx.guild.name} {entity_type}:**__",
                               color=0x03f8fc,
                               timestamp=ctx.message.created_at)
-        for x in character_list:
+        for x in entities[entity_type].directory:
             print(x.name)
+            value = f""
+            for y in x.AMENDABLE:
+                print(y)
+                value += f'> {y}: {getattr(x, y)}\n'
 
             embed.add_field(name=f'**{x.name}**',
-                            value=f'> Gold: {x.gp}\n> Mirror Coins: {x.mc}\n> Exp: {x.xp}',
+                            value=value,
+                            #value=f'> Gold: {x.gp}\n> Mirror Coins: {x.mc}\n> Exp: {x.xp}',
                             inline=False)
         response = embed
         await ctx.send(embed=response)
 
-    @bot.command(name='CreateCharacter')
-    async def create_character(ctx, name):
-        character = characters.create_character(name)
-        response = character.msg
-        await ctx.send(response)
+    # @bot.command(name='CreateCharacter')
+    # async def create_character(ctx, name):
+    #     character = characters.create_character(name)
+    #     response = character.msg
+    #     await ctx.send(response)
 
     @bot.command(name='Create')
     async def create(ctx,entity_type,name):
+        entity_type = entity_type.title()
         entity = entities[entity_type]
         new = utilities.create(entity,name)
         response = new.msg
@@ -53,8 +67,9 @@ def discord_integration():
 
     @bot.command(name='Amend')
     async def amend(ctx, entity_type, name, attribute, mod):
+        entity_type = entity_type.title()
         attribute = attribute.lower()
-        entity = utilities.find(entities[entity_type], "name", name.title())
+        entity = utilities.find(entities[entity_type].directory, "name", name.title())
         if entity is None:
             response = f"Unable to find a {entity_type} with the name {name}"
         else:
