@@ -40,8 +40,11 @@ def discord_integration():
             for amendable in entity.AMENDABLE:
                 attribute_value = getattr(entity, amendable)
                 if attribute_value != 0:
+                    print(f'> {amendable}: {attribute_value}\n')
                     field_value += f'> {amendable}: {attribute_value}\n'
 
+            if field_value == f"":
+                field_value = f"> empty"
             embed.add_field(name=f'**{entity.name}**',
                             value=field_value,
                             # field_value=f'> Gold: {entity.gp}\n> Mirror Coins: {entity.mc}\n> Exp: {entity.xp}',
