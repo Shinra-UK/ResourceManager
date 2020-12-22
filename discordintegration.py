@@ -34,16 +34,17 @@ def discord_integration():
         embed = discord.Embed(title=f"__**{ctx.guild.name} {entity_type}:**__",
                               color=0x03f8fc,
                               timestamp=ctx.message.created_at)
-        for x in entities[entity_type].directory:
-            print(x.name)
-            value = f""
-            for y in x.AMENDABLE:
-                if y != 0:
-                    value += f'> {y}: {getattr(x, y)}\n'
+        for entity in entities[entity_type].directory:
+            print(entity.name)
+            field_value = f""
+            for amendable in entity.AMENDABLE:
+                attribute_value = getattr(entity, amendable)
+                if attribute_value != 0:
+                    field_value += f'> {amendable}: {attribute_value}\n'
 
-            embed.add_field(name=f'**{x.name}**',
-                            value=value,
-                            # value=f'> Gold: {x.gp}\n> Mirror Coins: {x.mc}\n> Exp: {x.xp}',
+            embed.add_field(name=f'**{entity.name}**',
+                            value=field_value,
+                            # field_value=f'> Gold: {entity.gp}\n> Mirror Coins: {entity.mc}\n> Exp: {entity.xp}',
                             inline=False)
         response = embed
         await ctx.send(embed=response)
