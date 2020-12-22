@@ -52,13 +52,23 @@ def discord_integration():
         await ctx.send(response)
 
     @bot.command(name='Amend')
-    async def amend_character(ctx, name, attribute, mod):
+    async def amend(ctx, entity_type, name, attribute, mod):
         attribute = attribute.lower()
-        character = utilities.find(character_list, "name", name.title())
-        if character is None:
-            response = f"Unable to find a character with the name {name}"
+        entity = utilities.find(entities[entity_type], "name", name.title())
+        if entity is None:
+            response = f"Unable to find a {entity_type} with the name {name}"
         else:
-            response = character.amend(attribute, mod)
+            response = entity.amend(attribute, mod)
         await ctx.send(response)
+
+    # @bot.command(name='Amend')
+    # async def amend_character(ctx, name, attribute, mod):
+    #     attribute = attribute.lower()
+    #     character = utilities.find(character_list, "name", name.title())
+    #     if character is None:
+    #         response = f"Unable to find a character with the name {name}"
+    #     else:
+    #         response = character.amend(attribute, mod)
+    #     await ctx.send(response)
 
     bot.run(DISCORD_TOKEN)

@@ -10,28 +10,28 @@ class Character(utilities.Entity):
         self.xp = -150
         self.msg = ""
 
-    def amend(self, attribute, mod):
-        message = ""
-        if attribute not in Character.AMENDABLE:
-            message += f'{attribute} is not amendable\n'
-        else:
-            try:
-                mod = int(mod)
-            except ValueError as verr:
-                print(verr)
-                message += f'{mod} must be a number\n'
-            if isinstance(mod, numbers.Real):
-                old_value = getattr(self, attribute)
-                new_value = old_value + mod
-                message += f'{self.name} had {old_value} {attribute}.\n' \
-                           f'Amending by {mod}\nNew value would be {new_value}\n'
-                if new_value >= 0:
-                    setattr(self, attribute, new_value)
-                    message += f'{new_value} set'
-                elif new_value <= 0:
-                    message += f"They don't have {mod}{attribute} to lose."
-        print(message)
-        return message
+    # def amend(self, attribute, mod):
+    #     message = ""
+    #     if attribute not in Character.AMENDABLE:
+    #         message += f'{attribute} is not amendable\n'
+    #     else:
+    #         try:
+    #             mod = int(mod)
+    #         except ValueError as verr:
+    #             print(verr)
+    #             message += f'{mod} must be a number\n'
+    #         if isinstance(mod, numbers.Real):
+    #             old_value = getattr(self, attribute)
+    #             new_value = old_value + mod
+    #             message += f'{self.name} had {old_value} {attribute}.\n' \
+    #                        f'Amending by {mod}\nNew value would be {new_value}\n'
+    #             if new_value >= 0:
+    #                 setattr(self, attribute, new_value)
+    #                 message += f'{new_value} set'
+    #             elif new_value <= 0:
+    #                 message += f"They don't have {mod}{attribute} to lose."
+    #     print(message)
+    #     return message
 
     AMENDABLE = ("gp", "mc", "xp")
     character_list = []

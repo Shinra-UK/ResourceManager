@@ -1,3 +1,5 @@
+import numbers
+
 # returns the first object found
 def find(directory, attribute, value):
     for x in directory:
@@ -22,4 +24,26 @@ def create(entity, name):
 
 class Entity:
     directory = []
-    pass
+
+    def amend(self, attribute, mod):
+        message = ""
+        if attribute not in self.AMENDABLE:
+            message += f'{attribute} is not amendable\n'
+        else:
+            try:
+                mod = int(mod)
+            except ValueError as verr:
+                print(verr)
+                message += f'{mod} must be a number\n'
+            if isinstance(mod, numbers.Real):
+                old_value = getattr(self, attribute)
+                new_value = old_value + mod
+                message += f'{self.name} had {old_value} {attribute}.\n' \
+                           f'Amending by {mod}\nNew value would be {new_value}\n'
+                if new_value >= 0:
+                    setattr(self, attribute, new_value)
+                    message += f'{new_value} set'
+                elif new_value <= 0:
+                    message += f"They don't have {mod}{attribute} to lose."
+        print(message)
+        return message

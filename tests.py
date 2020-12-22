@@ -38,5 +38,7 @@ def settlement_tests():
     town2 = utilities.create(entity_type,"test town two")
     print(town1)
     print(town2)
+    town1.amend("gp",20)
+    town1.amend("gp",20)
     print(utilities.Entity.directory)
     print("End of Settlement Tests")
