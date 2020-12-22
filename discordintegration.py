@@ -38,8 +38,8 @@ def discord_integration():
             print(x.name)
             value = f""
             for y in x.AMENDABLE:
-                print(y)
-                value += f'> {y}: {getattr(x, y)}\n'
+                if y != 0:
+                    value += f'> {y}: {getattr(x, y)}\n'
 
             embed.add_field(name=f'**{x.name}**',
                             value=value,
