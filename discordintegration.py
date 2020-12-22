@@ -6,8 +6,9 @@ from discord.ext import commands
 
 bot = commands.Bot(command_prefix=COMMAND_PREFIX, case_insensitive=True)
 
+character_list = characters.Character.character_list
 
-def discord_integration(character_list):
+def discord_integration():
     @bot.event
     async def on_ready():
         print(f'{bot.user.name} is online.')
