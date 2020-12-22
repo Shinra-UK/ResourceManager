@@ -17,9 +17,11 @@ logging.basicConfig(level=logging.INFO)
 def main():
     """ Main entry point of the app """
     print("Hello World!")
-    tests.character_tests()
 
-    discordintegration.discord_integration()
+    tests.character_tests()
+    tests.settlement_tests()
+
+    # discordintegration.discord_integration()
     print("Goodbye World!")
 
 
