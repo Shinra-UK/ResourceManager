@@ -1,6 +1,7 @@
 import characters
 import utilities
 
+
 def character_tests():
     test_mc_gee = characters.create_character("Test Mcgee")
     test_mo_jo = characters.create_character("Test Mo Jo")

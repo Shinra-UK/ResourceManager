@@ -1,6 +1,7 @@
 import numbers
 import utilities
 
+
 class Character:
     def __init__(self, name):
         self.name = name
@@ -11,7 +12,7 @@ class Character:
 
     def amend(self, attribute, mod):
         message = ""
-        if not attribute in Character.AMENDABLE:
+        if attribute not in Character.AMENDABLE:
             message += f'{attribute} is not amendable\n'
         else:
             try:
@@ -19,14 +20,15 @@ class Character:
             except ValueError as verr:
                 print(verr)
                 message += f'{mod} must be a number\n'
-            if isinstance(mod,numbers.Real):
+            if isinstance(mod, numbers.Real):
                 old_value = getattr(self, attribute)
                 new_value = old_value + mod
-                message += f'{self.name} had {old_value} {attribute}.\nAmending by {mod}\nNew value would be {new_value}\n'
-                if (new_value >= 0):
+                message += f'{self.name} had {old_value} {attribute}.\n' \
+                           f'Amending by {mod}\nNew value would be {new_value}\n'
+                if new_value >= 0:
                     setattr(self, attribute, new_value)
                     message += f'{new_value} set'
-                elif (new_value <= 0):
+                elif new_value <= 0:
                     message += f"They don't have {mod}{attribute} to lose."
         print(message)
         return message

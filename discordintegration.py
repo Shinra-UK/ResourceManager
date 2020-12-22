@@ -8,18 +8,19 @@ bot = commands.Bot(command_prefix=COMMAND_PREFIX, case_insensitive=True)
 
 character_list = characters.Character.character_list
 
+
 def discord_integration():
     @bot.event
     async def on_ready():
         print(f'{bot.user.name} is online.')
 
     @bot.command(name='HelpMe')
-    async def helpme(ctx):
+    async def help_me(ctx):
         response = "Help is on the way!"
         await ctx.send(response)
 
     @bot.command(name='CharacterList')
-    async def characterlist(ctx):
+    async def list_characters(ctx):
         embed = discord.Embed(title=f"__**{ctx.guild.name} Characters:**__",
                               color=0x03f8fc,
                               timestamp=ctx.message.created_at)
