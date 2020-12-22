@@ -33,8 +33,8 @@ def discord_integration(character_list):
 
     @bot.command(name='CreateCharacter')
     async def create_character(ctx, name):
-        characters.create_character(name)
-        response = f'{name.title()} has arrived!'
+        character = characters.create_character(name)
+        response = character.msg
         await ctx.send(response)
 
     @bot.command(name='Amend')

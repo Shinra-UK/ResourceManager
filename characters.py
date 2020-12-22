@@ -1,4 +1,5 @@
 import numbers
+import utilities
 
 class Character:
     def __init__(self, name):
@@ -6,6 +7,7 @@ class Character:
         self.gp = 0
         self.mc = 0
         self.xp = -150
+        self.msg = ""
 
     def amend(self, attribute, mod):
         message = ""
@@ -34,8 +36,14 @@ class Character:
 
 
 def create_character(name):
-    name = name.title()
-    new_character = Character(name)
-    print(new_character.name + " Has been created")
-    Character.character_list.append(new_character)
-    return new_character
+    existing_character = utilities.find(Character.character_list, "name", name.title())
+    if existing_character is None:
+        name = name.title()
+        new_character = Character(name)
+        print(new_character.name + " Has been created")
+        Character.character_list.append(new_character)
+        new_character.msg = f'{new_character.name} has arrived!'
+        return new_character
+    else:
+        existing_character.msg = f'{existing_character.name} is already here.'
+        return existing_character
