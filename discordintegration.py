@@ -34,14 +34,22 @@ def discord_integration():
         embed = discord.Embed(title=f"__**{ctx.guild.name} {entity_type}:**__",
                               color=0x03f8fc,
                               timestamp=ctx.message.created_at)
-        for entity in entities.get(entity_type, utilities.Entity).directory:
+        directory = entities.get(entity_type, utilities.Entity).directory
+        for entity in directory:
             print(entity.name)
             field_value = f""
+
             for amendable in entity.AMENDABLE:
                 attribute_value = getattr(entity, amendable)
                 if attribute_value != 0:
                     print(f'> {amendable}: {attribute_value}\n')
                     field_value += f'> {amendable}: {attribute_value}\n'
+
+            for editable in entity.EDITABLE:
+                attribute_value = getattr(entity, editable)
+                if attribute_value != "":
+                    print(f'> {editable}: {attribute_value}\n')
+                    field_value += f'> {editable}: {attribute_value}\n'
 
             if field_value == f"":
                 field_value = f"> empty"

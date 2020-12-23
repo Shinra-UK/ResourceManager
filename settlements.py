@@ -5,6 +5,7 @@ class Settlement(utilities.Entity):
     def __init__(self, name):
         self.name = name
         self.leader = ""
+        self.importing = ""
         self.food = 0
         self.wood = 0
         self.stone = 0
@@ -14,5 +15,5 @@ class Settlement(utilities.Entity):
         self.msg = ""
 
     AMENDABLE = ("food", "wood", "stone", "ore", "metal", "gp")
-    EDITABLE = ("leader")
+    EDITABLE = ("leader", "importing")
     directory = []
