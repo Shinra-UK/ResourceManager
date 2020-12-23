@@ -1,4 +1,4 @@
-from config import DISCORD_TOKEN, COMMAND_PREFIX
+from config import DISCORD_TOKEN, COMMAND_PREFIX, ADMIN_ROLE_ID, PLAYER_ROLE_ID
 import characters
 import settlements
 import utilities
@@ -19,16 +19,32 @@ entities = {'Character': characters.Character,
 
 
 def discord_integration():
+    def check_membership(ctx,role_id):
+        print(role_id in ctx.author.roles)
+        for role in ctx.author.roles:
+            match = role_id == role.id
+            if match == True:
+                return match
+
+    async def is_admin(ctx):
+        return check_membership(ctx,ADMIN_ROLE_ID)
+
+    async def is_player(ctx):
+        return check_membership(ctx, PLAYER_ROLE_ID)
+
     @bot.event
     async def on_ready():
+        check_membership()
         print(f'{bot.user.name} is online.')
 
     @bot.command(name='HelpMe')
+    @commands.check(is_player)
     async def help_me(ctx):
         response = "Help is on the way!"
         await ctx.send(response)
 
     @bot.command(name='List')
+    @commands.check(is_admin)
     async def list_entities(ctx, entity_type="All"):
         entity_type = entity_type.title()
         embed = discord.Embed(title=f"__**{ctx.guild.name} {entity_type}:**__",
@@ -61,6 +77,7 @@ def discord_integration():
         await ctx.send(embed=response)
 
     @bot.command(name='Create')
+    @commands.check(is_admin)
     async def create(ctx, entity_type, name):
         entity_type = entity_type.title()
         entity = entities[entity_type]
@@ -69,6 +86,7 @@ def discord_integration():
         await ctx.send(response)
 
     @bot.command(name='Amend')
+    @commands.check(is_admin)
     async def amend(ctx, entity_type, name, attribute, mod):
         entity_type = entity_type.title()
         attribute = attribute.lower()
@@ -80,6 +98,7 @@ def discord_integration():
         await ctx.send(response)
 
     @bot.command(name='Edit')
+    @commands.check(is_admin)
     async def edit(ctx, entity_type, name, attribute, new):
         entity_type = entity_type.title()
         attribute = attribute.lower()
