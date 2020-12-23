@@ -30,6 +30,7 @@ def character_tests():
     print(bob1)
     print(bob2)
     print(utilities.Entity.directory)
+    print(characters.Character.directory)
     print("End of Character Tests\n")
 
 
@@ -46,4 +47,39 @@ def settlement_tests():
     bob = utilities.find(characters.Character.directory, "name", "Bob")
     bob.edit("location", town1.name)
     print(utilities.Entity.directory)
-    print("End of Settlement Tests")
+    print(settlements.Settlement.directory)
+    print("End of Settlement Tests\n")
+
+def task_tests():
+    print("Starting Task Tests")
+    entity_type = entities['Settlement']
+    town1 = utilities.create(entity_type, "test town one")
+    town2 = utilities.create(entity_type, "test town two")
+    task1 = town1.create_task("Work", 10, "Work for food")
+    task2 = town1.create_task("Work", 15, "Work for more food")
+    task3 = town1.create_task("Build", 10, "Build a structure")
+    print(task1.msg)
+    print(task2.msg)
+    print(task3.msg)
+    print(town1.tasks)
+    for i in town2.tasks:
+        print(i.name)
+        print(i.duration)
+        print(i.description)
+    # print(t)
+    #
+    # search1 = utilities.find(town1.directory, "name", "test town one".title())
+    # print(search1)
+    #
+    #
+    # print(task1)
+    # town3 = settlements.Settlement("Test")
+    # print(dir(town3))
+    # print(dir(task1))
+    # print(task1.name)
+    # print(task1.duration)
+    # print(task1.description)
+    # #print(task2)
+    # #search2 = utilities.find(town1.tasks[0],"name","Work")
+    # #print(search2)
+    print("End of Task Tests\n")
