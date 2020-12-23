@@ -6,6 +6,8 @@ class Settlement(utilities.Entity):
         self.name = name
         self.leader = ""
         self.importing = ""
+        self.exporting = ""
+        self.inventory = ""
         self.food = 0
         self.wood = 0
         self.stone = 0
@@ -15,5 +17,5 @@ class Settlement(utilities.Entity):
         self.msg = ""
 
     AMENDABLE = ("food", "wood", "stone", "ore", "metal", "gp")
-    EDITABLE = ("leader", "importing")
+    EDITABLE = ("leader", "importing", "exporting", "inventory")
     directory = []
