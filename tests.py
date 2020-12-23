@@ -66,20 +66,4 @@ def task_tests():
         print(i.name)
         print(i.duration)
         print(i.description)
-    # print(t)
-    #
-    # search1 = utilities.find(town1.directory, "name", "test town one".title())
-    # print(search1)
-    #
-    #
-    # print(task1)
-    # town3 = settlements.Settlement("Test")
-    # print(dir(town3))
-    # print(dir(task1))
-    # print(task1.name)
-    # print(task1.duration)
-    # print(task1.description)
-    # #print(task2)
-    # #search2 = utilities.find(town1.tasks[0],"name","Work")
-    # #print(search2)
     print("End of Task Tests\n")
