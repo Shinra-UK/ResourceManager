@@ -42,5 +42,8 @@ def settlement_tests():
     print(town2)
     town1.amend("gp", 20)
     town1.amend("gp", 20)
+    town1.edit("location", town1.name)
+    bob = utilities.find(characters.Character.directory, "name", "Bob")
+    bob.edit("location", town1.name)
     print(utilities.Entity.directory)
     print("End of Settlement Tests")

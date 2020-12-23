@@ -30,7 +30,8 @@ class Entity:
         self.name = name
         self.gp = 0
 
-    AMENDABLE = "gp"
+    AMENDABLE = ("gp")
+    EDITABLE = ("location")
     directory = []
 
     def amend(self, attribute, mod):
@@ -53,5 +54,25 @@ class Entity:
                     message += f'{new_value} set'
                 elif new_value <= 0:
                     message += f"They don't have {mod}{attribute} to lose."
+        print(message)
+        return message
+
+    def edit(self, attribute, new_value):
+        message = ""
+        if attribute not in self.EDITABLE:
+            message += f'{attribute} is not editable\n'
+        else:
+            try:
+                new_value = str(new_value)
+            except ValueError as verr:
+                print(verr)
+                message += f'{new_value} must be a string\n'
+            if isinstance(new_value, str):
+                old_value = getattr(self, attribute)
+                message += f'{self.name} had {old_value} {attribute}.\n' \
+                           f'Replacing with {new_value}\n'
+                setattr(self, attribute, new_value)
+                message += f'{new_value} set'
+
         print(message)
         return message
