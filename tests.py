@@ -58,6 +58,7 @@ def task_tests():
     task1 = town1.create_task("Work", 10, "Work for food")
     task2 = town1.create_task("Work", 15, "Work for more food")
     task3 = town1.create_task("Build", 10, "Build a structure")
+    task4 = town2.create_task("","","")
     print(task1.msg)
     print(task2.msg)
     print(task3.msg)

@@ -27,8 +27,10 @@ def create(entity, name):
 def build_table(object, *attributes):
     table = f''
     for i in attributes:
+        i = str(i)
         if(hasattr(object, i)):
-            table += f'> {i}: {str(getattr(object, i))}\n'
+            attribute = getattr(object, i)
+            table += f'> {i}: {str(attribute)}\n'
     if table == f'':
         table = "> empty"
     return table
