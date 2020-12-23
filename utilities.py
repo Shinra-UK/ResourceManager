@@ -28,9 +28,11 @@ def build_table(object, *attributes):
     table = f''
     for i in attributes:
         i = str(i)
+        print(i)
         if(hasattr(object, i)):
             attribute = getattr(object, i)
-            table += f'> {i}: {str(attribute)}\n'
+            if attribute != 0 and attribute != "":
+                table += f'> {i}: {str(attribute)}\n'
     if table == f'':
         table = "> empty"
     return table

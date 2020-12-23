@@ -34,7 +34,6 @@ def discord_integration():
 
     @bot.event
     async def on_ready():
-        check_membership()
         print(f'{bot.user.name} is online.')
 
     @bot.command(name='HelpMe')
@@ -53,19 +52,24 @@ def discord_integration():
         directory = entities.get(entity_type, utilities.Entity).directory
         for entity in directory:
             print(entity.name)
-            field_value = f""
+            #field_value = f""
+            #field_value = utilities.build_table(entity, entity.AMENDABLE)
+           #field_value += utilities.build_table(entity, entity.EDITABLE)
+            field_value = utilities.build_table(entity, *[*entity.AMENDABLE, *entity.EDITABLE])
 
-            for amendable in entity.AMENDABLE:
-                attribute_value = getattr(entity, amendable)
-                if attribute_value != 0:
-                    print(f'> {amendable}: {attribute_value}\n')
-                    field_value += f'> {amendable}: {attribute_value}\n'
 
-            for editable in entity.EDITABLE:
-                attribute_value = getattr(entity, editable)
-                if attribute_value != "":
-                    print(f'> {editable}: {attribute_value}\n')
-                    field_value += f'> {editable}: {attribute_value}\n'
+            #for amendable in entity.AMENDABLE:
+
+            #     attribute_value = getattr(entity, amendable)
+            #     if attribute_value != 0:
+            #         print(f'> {amendable}: {attribute_value}\n')
+            #         field_value += f'> {amendable}: {attribute_value}\n'
+            #
+            # for editable in entity.EDITABLE:
+            #     attribute_value = getattr(entity, editable)
+            #     if attribute_value != "":
+            #         print(f'> {editable}: {attribute_value}\n')
+            #         field_value += f'> {editable}: {attribute_value}\n'
 
             if field_value == f"":
                 field_value = f"> empty"
