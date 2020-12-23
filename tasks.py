@@ -5,5 +5,3 @@ class Task:
         self.description = description
         self.start = 0
         self.end = 0
-
-

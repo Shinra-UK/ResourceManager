@@ -24,26 +24,27 @@ def create(entity, name):
         existing.msg = f'{existing.name} is already here.'
         return existing
 
-def build_table(object, *attributes):
+
+def build_table(_object, *attributes):
     table = f''
     for i in attributes:
         i = str(i)
-        print(i)
-        if(hasattr(object, i)):
-            attribute = getattr(object, i)
+        if hasattr(_object, i):
+            attribute = getattr(_object, i)
             if attribute != 0 and attribute != "":
                 table += f'> {i}: {str(attribute)}\n'
     if table == f'':
         table = "> empty"
     return table
 
+
 class Entity:
     def __init__(self, name):
         self.name = name
         self.gp = 0
 
-    AMENDABLE = ("gp")
-    EDITABLE = ("location")
+    AMENDABLE = "gp"
+    EDITABLE = "location"
     directory = []
 
     def amend(self, attribute, mod):
