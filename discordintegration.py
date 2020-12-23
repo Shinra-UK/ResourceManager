@@ -29,12 +29,12 @@ def discord_integration():
         await ctx.send(response)
 
     @bot.command(name='List')
-    async def list_entities(ctx, entity_type):
+    async def list_entities(ctx, entity_type="All"):
         entity_type = entity_type.title()
         embed = discord.Embed(title=f"__**{ctx.guild.name} {entity_type}:**__",
                               color=0x03f8fc,
                               timestamp=ctx.message.created_at)
-        for entity in entities[entity_type].directory:
+        for entity in entities.get(entity_type, utilities.Entity).directory:
             print(entity.name)
             field_value = f""
             for amendable in entity.AMENDABLE:
@@ -69,6 +69,17 @@ def discord_integration():
             response = f"Unable to find a {entity_type} with the name {name}"
         else:
             response = entity.amend(attribute, mod)
+        await ctx.send(response)
+
+    @bot.command(name='Edit')
+    async def edit(ctx, entity_type, name, attribute, new):
+        entity_type = entity_type.title()
+        attribute = attribute.lower()
+        entity = utilities.find(entities[entity_type].directory, "name", name.title())
+        if entity is None:
+            response = f"Unable to find a {entity_type} with the name {name}"
+        else:
+            response = entity.edit(attribute, new)
         await ctx.send(response)
 
     bot.run(DISCORD_TOKEN)
