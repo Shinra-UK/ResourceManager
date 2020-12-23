@@ -24,6 +24,14 @@ def create(entity, name):
         existing.msg = f'{existing.name} is already here.'
         return existing
 
+def build_table(object, *attributes):
+    table = f''
+    for i in attributes:
+        if(hasattr(object, i)):
+            table += f'> {i}: {str(getattr(object, i))}\n'
+    if table == f'':
+        table = "> empty"
+    return table
 
 class Entity:
     def __init__(self, name):

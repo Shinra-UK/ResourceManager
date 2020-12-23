@@ -62,8 +62,8 @@ def task_tests():
     print(task2.msg)
     print(task3.msg)
     print(town1.tasks)
+    for i in town1.tasks:
+        print(utilities.build_table(i, "name", "duration", "description", "error"))
     for i in town2.tasks:
-        print(i.name)
-        print(i.duration)
-        print(i.description)
+        print(utilities.build_table(i, "name", "duration", "description"))
     print("End of Task Tests\n")
