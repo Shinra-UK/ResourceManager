@@ -74,22 +74,28 @@ def task_tests():
 
 def map_tests():
     print("Starting Map Tests")
-    nw = maps.create_fragment("",(-1,1,0), "Here there be dragons")
-    n = maps.create_fragment("",(0,1,0), "Here there be bear")
-    ne = maps.create_fragment("",(1,1,0), "Here there be swamp")
-    w = maps.create_fragment("",(-1,0,0), "Here there be a mirror")
+    nw = maps.create_fragment("",(-1,1,0), "Here there be dragons.")
+    n = maps.create_fragment("",(0,1,0), "Here there be bear.  I hope we can tame him.")
+    ne = maps.create_fragment("",(1,1,0), "Here there be swamp. Squelch")
+    w = maps.create_fragment("",(-1,0,0), "Here there be a mirror.  I wonder who will come through next")
     c = maps.create_fragment("Haven",(0,0,0), "Here there be Haven")
-    e = maps.create_fragment("Nothic Library",(1,0,0), "Here there be Nothic Library")
-    sw = maps.create_fragment("", (-1, -1, 0), "Here there be Robots")
-    s = maps.create_fragment("", (0, -1, 0), "Here there be Slimes")
-    se = maps.create_fragment("", (1, -1, 0), "Here there be Cows")
-    error = maps.create_fragment("Hillingdon",(-1,-1,0), "Here there be hills")
+    e = maps.create_fragment("Nothic Library",(1,0,0), "Here there be Nothic Library.  We stole lots of books and killed a nothic thing twice.")
+    sw = maps.create_fragment("", (-1, -1, 0), "Here there be Robots.  They release thick smog that clogs up your airways.")
+    s = maps.create_fragment("", (0, -1, 0), "Here there be Slimes. They eat boats!")
+    se = maps.create_fragment("", (1, -1, 0), "Here there be Cows.  Moooooooooooooooooooooooooo")
+    error = maps.create_fragment("Hillingdon",(-1,-1,0), "Here there be hills. Let's go over them and explore far away!")
     print(maps.Fragment.directory)
+    # print(f"c.nw{c.nw}")
+    # print(f"c.w{c.w}")
     c.update_neighbours()
-    for i in maps.Fragment.directory:
-        print(f'{i.name} {i.description} {i.coordinates}')
-        i.update_neighbours()
-        print(i.nw)
+    # print(f"c.nw{c.nw}")
+    # print(f"c.w{c.w}")
+    # for i in maps.Fragment.directory:
+    #     print(f'{i.name} {i.description} {i.coordinates}')
+    # for y in maps.neighbour_list:
+    #     print(y)
+    #     neighbour = getattr(c, y)
+    #     print(neighbour)
 
 
     print("End of Map Tests\n")

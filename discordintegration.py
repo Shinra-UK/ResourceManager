@@ -1,6 +1,7 @@
 from config import DISCORD_TOKEN, COMMAND_PREFIX, ADMIN_ROLE_ID, PLAYER_ROLE_ID
 import characters
 import settlements
+import maps
 import utilities
 import discord
 from discord.ext import commands
@@ -16,6 +17,7 @@ entities = {'Character': characters.Character,
             'S': settlements.Settlement,
             'A': utilities.Entity
             }
+NEIGHBOURS = (("nw", "n", "ne"), ("w", "c", "e"), ("sw", "s", "se"))
 
 
 def discord_integration():
@@ -60,6 +62,44 @@ def discord_integration():
                             inline=False)
         response = embed
         await ctx.send(embed=response)
+
+#Does not convert -1's
+    @bot.command(name='Map')
+    @commands.check(is_admin)
+    async def embed_map(ctx, center_coordinates=(0, 0, 0)):
+        if isinstance(center_coordinates[0], str):
+            conversion = []
+            for i in center_coordinates:
+                if len(conversion) < 3:
+                    try:
+                        conversion.append(int(i))
+                    except:
+                        print(f'{i} cannot be converted to an int')
+                        pass
+                else:
+                    break
+            center_coordinates = tuple(int(i) for i in conversion)
+
+        if isinstance(center_coordinates, tuple):
+            center = maps.find_fragment(center_coordinates)
+            center.update_neighbours()
+
+            embed = discord.Embed(title=f"__**Map of Surrounding Area: {center.name} - {center.coordinates}:**__",
+                                  color=0x03f8fc,
+                                  timestamp=ctx.message.created_at)
+
+            for line in NEIGHBOURS:
+                for neighbour in line:
+                    current_neighbour = getattr(center, neighbour)
+                    field_value = utilities.build_table(current_neighbour, "description")
+
+                    if field_value == f"":
+                        field_value = f"> empty"
+                    embed.add_field(name=f'**{current_neighbour.name}**', value=field_value, inline=True)
+                embed.add_field(name='\u200b', value='\u200b', inline=False)
+
+            response = embed
+            await ctx.send(embed=response)
 
     @bot.command(name='Create')
     @commands.check(is_admin)
