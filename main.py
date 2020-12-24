@@ -22,8 +22,9 @@ def main():
     tests.character_tests()
     tests.settlement_tests()
     tests.task_tests()
+    tests.map_tests()
 
-    discordintegration.discord_integration()
+    # discordintegration.discord_integration()
     print("Goodbye World!")
 
 

@@ -1,5 +1,6 @@
 import characters
 import settlements
+import maps
 import utilities
 
 entities = {'Character': characters.Character,
@@ -69,3 +70,19 @@ def task_tests():
     for i in town2.tasks:
         print(utilities.build_table(i, "name", "duration", "description"))
     print("End of Task Tests\n")
+
+
+def map_tests():
+    print("Starting Map Tests")
+    nw = maps.create_fragment("",-1,1,0, "Here there be dragons")
+    n = maps.create_fragment("",0,1,0, "Here there be bear")
+    ne = maps.create_fragment("",1,1,0, "Here there be swamp")
+    w = maps.create_fragment("",-1,0,0, "Here there be a mirror")
+    c = maps.create_fragment("Haven",0,0,0, "Here there be Haven")
+    e = maps.create_fragment("Nothic Library",1,0,0, "Here there be Nothic Library")
+    sw = maps.create_fragment("", -1, -1, 0, "Here there be Robots")
+    s = maps.create_fragment("", -1, -1, 0, "Here there be Slimes")
+    se = maps.create_fragment("", -1, -1, 0, "Here there be Cows")
+    error = maps.create_fragment("Hillingdon",-1,-1,0, "Here there be hills")
+    print(maps.Fragment.directory)
+    print("End of Map Tests\n")
