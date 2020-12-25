@@ -63,10 +63,12 @@ def discord_integration():
         response = embed
         await ctx.send(embed=response)
 
-#Does not convert -1's
     @bot.command(name='Map')
     @commands.check(is_admin)
-    async def embed_map(ctx, center_coordinates=(0, 0, 0)):
+    async def embed_map(ctx, *center_coordinates):
+        if center_coordinates == ():
+            center_coordinates = (0,0,0)
+        print(center_coordinates)
         if isinstance(center_coordinates[0], str):
             conversion = []
             for i in center_coordinates:
@@ -78,28 +80,32 @@ def discord_integration():
                         pass
                 else:
                     break
+            while len(conversion) < 3:
+                conversion.append(0)
             center_coordinates = tuple(int(i) for i in conversion)
 
         if isinstance(center_coordinates, tuple):
             center = maps.find_fragment(center_coordinates)
-            center.update_neighbours()
+            print(center.coordinates)
+            if center.coordinates[0] != 999:
+                center.update_neighbours()
 
-            embed = discord.Embed(title=f"__**Map of Surrounding Area: {center.name} - {center.coordinates}:**__",
-                                  color=0x03f8fc,
-                                  timestamp=ctx.message.created_at)
+                embed = discord.Embed(title=f"__**Map of Surrounding Area: {center.name} - {center.coordinates}:**__",
+                                      color=0x03f8fc,
+                                      timestamp=ctx.message.created_at)
 
-            for line in NEIGHBOURS:
-                for neighbour in line:
-                    current_neighbour = getattr(center, neighbour)
-                    field_value = utilities.build_table(current_neighbour, "description")
+                for line in NEIGHBOURS:
+                    for neighbour in line:
+                        current_neighbour = getattr(center, neighbour)
+                        field_value = utilities.build_table(current_neighbour, "description")
 
-                    if field_value == f"":
-                        field_value = f"> empty"
-                    embed.add_field(name=f'**{current_neighbour.name}**', value=field_value, inline=True)
-                embed.add_field(name='\u200b', value='\u200b', inline=False)
+                        if field_value == f"":
+                            field_value = f"> empty"
+                        embed.add_field(name=f'**{current_neighbour.name}**', value=field_value, inline=True)
+                    embed.add_field(name='\u200b', value='\u200b', inline=False)
 
-            response = embed
-            await ctx.send(embed=response)
+                response = embed
+                await ctx.send(embed=response)
 
     @bot.command(name='Create')
     @commands.check(is_admin)
