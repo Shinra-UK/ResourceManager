@@ -1,6 +1,7 @@
 import characters
 import settlements
 import maps
+import users
 import utilities
 
 entities = {'Character': characters.Character,
@@ -96,6 +97,16 @@ def map_tests():
     #     print(y)
     #     neighbour = getattr(c, y)
     #     print(neighbour)
-
-
     print("End of Map Tests\n")
+
+def user_tests():
+    print("End of User Tests\n")
+    user1 = users.create_user(1)
+    user2 = users.create_user(2)
+    user3 = users.create_user(1)
+    print(user1)
+    print(user2)
+    print(users.User.directory)
+    print("End of User Tests\n")
+
+
