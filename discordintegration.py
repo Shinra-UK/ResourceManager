@@ -19,6 +19,33 @@ entities = {'Character': characters.Character,
             }
 NEIGHBOURS = (("nw", "n", "ne"), ("w", "c", "e"), ("sw", "s", "se"))
 
+def build_map_embed(center):
+    NEIGHBOURS = (("nw", "n", "ne"), ("w", "c", "e"), ("sw", "s", "se"))
+    center.update_neighbours()
+
+    embed = discord.Embed(title=f"__**Map of Surrounding Area: {center.name} - {center.coordinates}:**__",
+                          color=0x03f8fc
+                          )
+                          #timestamp=ctx.message.created_at)
+
+
+    for line in NEIGHBOURS:
+        for neighbour in line:
+            current_neighbour = getattr(center, neighbour)
+            field_value = utilities.build_table(current_neighbour, "description")
+
+            if field_value == f"":
+                field_value = f"> empty"
+            embed.add_field(name=f'**{current_neighbour.name}**', value=field_value, inline=True)
+        embed.add_field(name='\u200b', value='\u200b', inline=False)
+
+    return embed
+    # message = await ctx.send(embed=response)
+    #
+    # reactions = [u"\u2B05", u"\u2B06", u"\u2B07", u"\u27A1", u"\U0001F4DD"]
+    # for reaction in reactions:
+    #     await message.add_reaction(reaction)
+
 
 def discord_integration():
     def check_membership(ctx, role_id):
@@ -105,7 +132,63 @@ def discord_integration():
                     embed.add_field(name='\u200b', value='\u200b', inline=False)
 
                 response = embed
-                await ctx.send(embed=response)
+                message = await ctx.send(embed=response)
+
+                reactions = [u"\u2B05", u"\u2B06", u"\u2B07", u"\u27A1", u"\U0001F4DD"]
+                for reaction in reactions:
+                    await message.add_reaction(reaction)
+
+    @bot.event
+    async def on_reaction_add(reaction, user):
+        if user.bot:
+            return
+
+        if reaction.me:
+            emoji = reaction.emoji
+            message = reaction.message
+            channel_id = message.channel
+            #channel = bot.get_channel(channel_id)
+            channel = bot.get_channel(787017194965041172)
+            message_id = message.id
+            message = await channel.fetch_message(message_id)
+
+            if emoji == u"\u2B05":
+                print("left")
+                #target_center = center.nw
+                # center_coordinates = (0,0,0)
+                # center = maps.find_fragment(center_coordinates)
+                # embed = build_map_embed(center)
+                embed = build_map_embed(target_center)
+                await message.edit(embed=embed)
+            elif emoji == u"\u2B06":
+                print("up")
+                await message.edit(embed="up")
+            elif emoji == u"\u2B07":
+                await message.edit(embed="down")
+            elif emoji == u"\u27A1":
+                await message.edit(embed="right")
+            elif emoji == u"\U0001F4DD":
+                print("edit")
+                await message.edit(embed="edit")
+
+
+
+
+
+
+            # print(message)
+            # print(type(message))
+            print(dir(message))
+            # print(message.id)
+
+
+        #
+        # print(dir(emoji))
+        # print(dir(reaction.me))
+        # print(dir(reaction.message))
+        # print(reaction.me)
+        # print(reaction.message)
+        # print(dir(user))
 
     @bot.command(name='Create')
     @commands.check(is_admin)
@@ -139,5 +222,7 @@ def discord_integration():
         else:
             response = entity.edit(attribute, new)
         await ctx.send(response)
+
+
 
     bot.run(DISCORD_TOKEN)
