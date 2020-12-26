@@ -227,6 +227,15 @@ def discord_integration():
             response = entity.edit(attribute, new)
         await ctx.send(response)
 
+    @bot.command(name='Register')
+    @commands.check(is_player)
+    async def register(ctx):
+        discord_id = ctx.author.id
+        print(f'Registering {discord_id}')
+        user = users.create_user(discord_id)
+        response = user.msg
+        await ctx.send(response)
+
 
 
     bot.run(DISCORD_TOKEN)
