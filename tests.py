@@ -106,7 +106,11 @@ def user_tests():
     user3 = users.create_user(1)
     print(user1)
     print(user2)
+    print(user3)
     print(users.User.directory)
+    print(user1.used_character_slots)
+    user2.characters.append("Bob")
+    print(user2.used_character_slots)
     print("End of User Tests\n")
 
 

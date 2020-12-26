@@ -2,6 +2,7 @@ from config import DISCORD_TOKEN, COMMAND_PREFIX, ADMIN_ROLE_ID, PLAYER_ROLE_ID
 import characters
 import settlements
 import maps
+import users
 import utilities
 import discord
 from discord.ext import commands
@@ -10,11 +11,14 @@ bot = commands.Bot(command_prefix=COMMAND_PREFIX, case_insensitive=True)
 
 entities = {'Character': characters.Character,
             'Settlement': settlements.Settlement,
+            'User': users.User,
             'Characters': characters.Character,
             'Settlements': settlements.Settlement,
+            'Users': users.User,
             'All': utilities.Entity,
             'C': characters.Character,
             'S': settlements.Settlement,
+            'U': users.User,
             'A': utilities.Entity
             }
 NEIGHBOURS = (("nw", "n", "ne"), ("w", "c", "e"), ("sw", "s", "se"))
