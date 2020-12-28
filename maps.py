@@ -86,7 +86,8 @@ def find_fragment(target_coordinates):
     if existing:
         return existing
     else:
-        return unmapped_fragment
+        return create_fragment("Unmapped Area", target_coordinates, "?????")
+        #unmapped_fragment
         # return None
 
 

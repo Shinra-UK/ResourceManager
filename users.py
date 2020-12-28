@@ -1,3 +1,4 @@
+import maps
 import utilities
 
 class User:
@@ -7,6 +8,7 @@ class User:
         self.character_slots = 1
         self.characters = []
         self.selected_character = None
+        self.viewing_fragment = maps.find_fragment((0, 0, 0))
 
 
     AMENDABLE = ("character_slots",)

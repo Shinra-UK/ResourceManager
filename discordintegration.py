@@ -51,6 +51,11 @@ def build_map_embed(center):
     #     await message.add_reaction(reaction)
 
 
+def get_user(uid):
+    return utilities.find(users.User.directory, "uid", uid)
+
+
+
 def discord_integration():
     def check_membership(ctx, role_id):
         print(role_id in ctx.author.roles)
@@ -97,10 +102,13 @@ def discord_integration():
     @bot.command(name='Map')
     @commands.check(is_admin)
     async def embed_map(ctx, *center_coordinates):
+        user = get_user(ctx.author.id)
         if center_coordinates == ():
-            center_coordinates = (0,0,0)
-        print(center_coordinates)
-        if isinstance(center_coordinates[0], str):
+            try:
+                center_coordinates = user.viewing_fragment.coordinates
+            except:
+                center_coordinates = (0, 0, 0)
+        elif isinstance(center_coordinates[0], str):
             conversion = []
             for i in center_coordinates:
                 if len(conversion) < 3:
@@ -120,21 +128,25 @@ def discord_integration():
             print(center.coordinates)
             if center.coordinates[0] != 999:
                 center.update_neighbours()
+                if user:
+                    user.viewing_fragment = center
+                embed = build_map_embed(center)
 
-                embed = discord.Embed(title=f"__**Map of Surrounding Area: {center.name} - {center.coordinates}:**__",
-                                      color=0x03f8fc,
-                                      timestamp=ctx.message.created_at)
-
-                for line in NEIGHBOURS:
-                    for neighbour in line:
-                        current_neighbour = getattr(center, neighbour)
-                        field_value = utilities.build_table(current_neighbour, "description")
-
-                        if field_value == f"":
-                            field_value = f"> empty"
-                        embed.add_field(name=f'**{current_neighbour.name}**', value=field_value, inline=True)
-                    embed.add_field(name='\u200b', value='\u200b', inline=False)
-
+                # embed = discord.Embed(title=f"__**Map of Surrounding Area: {center.name} - {center.coordinates}:**__",
+                #                       color=0x03f8fc,
+                #                       timestamp=ctx.message.created_at)
+                #
+                # for line in NEIGHBOURS:
+                #     for neighbour in line:
+                #         current_neighbour = getattr(center, neighbour)
+                #         field_value = utilities.build_table(current_neighbour, "description")
+                #
+                #         if field_value == f"":
+                #             field_value = f"> empty"
+                #         embed.add_field(name=f'**{current_neighbour.name}**', value=field_value, inline=True)
+                #     embed.add_field(name='\u200b', value='\u200b', inline=False)
+                #
+                # response = embed
                 response = embed
                 message = await ctx.send(embed=response)
 
@@ -143,13 +155,14 @@ def discord_integration():
                     await message.add_reaction(reaction)
 
     @bot.event
-    async def on_reaction_add(reaction, user):
-        if user.bot:
+    async def on_reaction_add(reaction, discord_user):
+        if discord_user.bot:
             return
 
         if reaction.me:
             emoji = reaction.emoji
             message = reaction.message
+            user = get_user(discord_user.id)
             channel_id = message.channel
             #channel = bot.get_channel(channel_id)
             channel = bot.get_channel(787017194965041172)
@@ -158,19 +171,28 @@ def discord_integration():
 
             if emoji == u"\u2B05":
                 print("left")
+                print(F'Left - user: {user}')
                 #target_center = center.nw
                 # center_coordinates = (0,0,0)
                 # center = maps.find_fragment(center_coordinates)
                 # embed = build_map_embed(center)
-                embed = build_map_embed(target_center)
+                #center = maps.find_fragment()
+                user.viewing_fragment = user.viewing_fragment.w
+                embed = build_map_embed(user.viewing_fragment)
                 await message.edit(embed=embed)
             elif emoji == u"\u2B06":
                 print("up")
-                await message.edit(embed="up")
+                user.viewing_fragment = user.viewing_fragment.n
+                embed = build_map_embed(user.viewing_fragment)
+                await message.edit(embed=embed)
             elif emoji == u"\u2B07":
-                await message.edit(embed="down")
+                user.viewing_fragment = user.viewing_fragment.s
+                embed = build_map_embed(user.viewing_fragment)
+                await message.edit(embed=embed)
             elif emoji == u"\u27A1":
-                await message.edit(embed="right")
+                user.viewing_fragment = user.viewing_fragment.e
+                embed = build_map_embed(user.viewing_fragment)
+                await message.edit(embed=embed)
             elif emoji == u"\U0001F4DD":
                 print("edit")
                 await message.edit(embed="edit")
@@ -228,13 +250,26 @@ def discord_integration():
         await ctx.send(response)
 
     @bot.command(name='Register')
-    @commands.check(is_player)
     async def register(ctx):
         discord_id = ctx.author.id
         print(f'Registering {discord_id}')
         user = users.create_user(discord_id)
+        if not check_membership(ctx, PLAYER_ROLE_ID):
+            role = discord.utils.get(ctx.guild.roles, id=PLAYER_ROLE_ID)
+            print(role)
+            await ctx.author.add_roles(role)
         response = user.msg
         await ctx.send(response)
+
+    @bot.command(name='MakeTea')
+    @commands.check(is_player)
+    async def make_tea(ctx):
+        discord_id = ctx.author.id
+        print(f'Registering {discord_id}')
+        user = users.create_user(discord_id)
+        response = f"Beep Boop making the tea... for {ctx.author.name}"
+        message = await ctx.send(response)
+        await message.add_reaction(	u"\U0001F375")
 
 
 
