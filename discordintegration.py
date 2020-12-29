@@ -4,6 +4,7 @@ from discord.ext import commands
 import characters
 import maps
 import settlements
+import time
 import users
 import utilities
 from config import DISCORD_TOKEN, COMMAND_PREFIX, ADMIN_ROLE_ID, PLAYER_ROLE_ID
@@ -225,7 +226,14 @@ def discord_integration():
                     return
             if emoji == u"\U0001F4DD":
                 print("edit")
+                fragment = user.viewing_fragment
                 await message.edit(content="What did you find there?")
+                description_request = await bot.wait_for('message')
+                proposed_log_entry = maps.Log_Entry(time.time(), user, description_request.content)
+                print(f'{description_request}')
+                print(proposed_log_entry.entry)
+                #reply with edit confirmation
+
             elif emoji == u"\U0001F4F1":
                 user.mobile = not user.mobile
                 embed = build_map_embed(user.viewing_fragment, user.mobile)

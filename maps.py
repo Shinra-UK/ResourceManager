@@ -1,11 +1,18 @@
+import time
 import utilities
 
+class Log_Entry:
+    def __init__(self, time_stamp, author, entry):
+        self.time_stamp = time_stamp
+        self.author = author
+        self.entry = entry
 
 class Fragment:
-    def __init__(self, name, coordinates, description):
+    def __init__(self, name, coordinates, description_log_entry):
         self.coordinates = coordinates
         self.name = name
-        self.description = description
+        self.description_log = [description_log_entry]
+        #self.description = description
         self.nw = False
         self.n = False
         self.ne = False
@@ -31,6 +38,10 @@ class Fragment:
         #     "up": self.up,
         #     "dn": self.dn
         # }
+
+    @property
+    def description(self):
+        return self.description_log[0].entry
 
     directory = []
 
@@ -70,7 +81,7 @@ def create_fragment(name, coordinates, description):
         existing.msg = f'{existing.name} is already here.'
         return existing
     else:
-        new = Fragment(name, coordinates, description)
+        new = Fragment(name, coordinates, Log_Entry(time.time(), "System", description))
         print(new.name + " Has been created")
         Fragment.directory.append(new)
         new.msg = f'{new.name} has been drawn!'
@@ -93,6 +104,6 @@ def find_fragment(target_coordinates):
 
 neighbour_list = ("nw", "n", "ne", "w", "c", "e", "sw", "s", "se", "up", "dn")
 
-unmapped_fragment = Fragment("Unmapped Area",
-                             (999, 999, 999),
-                             "Has anyone explored here yet?")
+# unmapped_fragment = Fragment("Unmapped Area",
+#                              (999, 999, 999),
+#                              "Has anyone explored here yet?")
