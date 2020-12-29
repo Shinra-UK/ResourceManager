@@ -9,6 +9,7 @@ class User:
         self.characters = []
         self.selected_character = None
         self.viewing_fragment = maps.find_fragment((0, 0, 0))
+        self.mobile = False
 
 
     AMENDABLE = ("character_slots",)

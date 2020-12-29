@@ -1,11 +1,12 @@
-from config import DISCORD_TOKEN, COMMAND_PREFIX, ADMIN_ROLE_ID, PLAYER_ROLE_ID
-import characters
-import settlements
-import maps
-import users
-import utilities
 import discord
 from discord.ext import commands
+
+import characters
+import maps
+import settlements
+import users
+import utilities
+from config import DISCORD_TOKEN, COMMAND_PREFIX, ADMIN_ROLE_ID, PLAYER_ROLE_ID
 
 bot = commands.Bot(command_prefix=COMMAND_PREFIX, case_insensitive=True)
 
@@ -21,17 +22,31 @@ entities = {'Character': characters.Character,
             'U': users.User,
             'A': utilities.Entity
             }
-NEIGHBOURS = (("nw", "n", "ne"), ("w", "c", "e"), ("sw", "s", "se"))
 
-def build_map_embed(center):
-    NEIGHBOURS = (("nw", "n", "ne"), ("w", "c", "e"), ("sw", "s", "se"))
+arrow_emojies = {u"\u2199": 'sw',
+                 u"\u2B05": 'w',
+                 u"\u2196": 'nw',
+                 u"\u2B06": 'n',
+                 u"\u2197": 'ne',
+                 u"\u27A1": 'e',
+                 u"\u2198": 'se',
+                 u"\u2B07": 's'
+                 }
+
+
+# NEIGHBOURS = (("nw", "n", "ne"), ("w", "c", "e"), ("sw", "s", "se"))
+
+def build_map_embed(center, mobile=False):
+    if mobile:
+        NEIGHBOURS = (("c"))
+    else:
+        NEIGHBOURS = (("nw", "n", "ne"), ("w", "c", "e"), ("sw", "s", "se"))
     center.update_neighbours()
 
     embed = discord.Embed(title=f"__**Map of Surrounding Area: {center.name} - {center.coordinates}:**__",
                           color=0x03f8fc
                           )
-                          #timestamp=ctx.message.created_at)
-
+    # timestamp=ctx.message.created_at)
 
     for line in NEIGHBOURS:
         for neighbour in line:
@@ -53,7 +68,6 @@ def build_map_embed(center):
 
 def get_user(uid):
     return utilities.find(users.User.directory, "uid", uid)
-
 
 
 def discord_integration():
@@ -126,33 +140,38 @@ def discord_integration():
         if isinstance(center_coordinates, tuple):
             center = maps.find_fragment(center_coordinates)
             print(center.coordinates)
-            if center.coordinates[0] != 999:
-                center.update_neighbours()
-                if user:
-                    user.viewing_fragment = center
-                embed = build_map_embed(center)
 
-                # embed = discord.Embed(title=f"__**Map of Surrounding Area: {center.name} - {center.coordinates}:**__",
-                #                       color=0x03f8fc,
-                #                       timestamp=ctx.message.created_at)
-                #
-                # for line in NEIGHBOURS:
-                #     for neighbour in line:
-                #         current_neighbour = getattr(center, neighbour)
-                #         field_value = utilities.build_table(current_neighbour, "description")
-                #
-                #         if field_value == f"":
-                #             field_value = f"> empty"
-                #         embed.add_field(name=f'**{current_neighbour.name}**', value=field_value, inline=True)
-                #     embed.add_field(name='\u200b', value='\u200b', inline=False)
-                #
-                # response = embed
-                response = embed
-                message = await ctx.send(embed=response)
+            center.update_neighbours()
+            if user:
+                user.viewing_fragment = center
+            embed = build_map_embed(center)
 
-                reactions = [u"\u2B05", u"\u2B06", u"\u2B07", u"\u27A1", u"\U0001F4DD"]
-                for reaction in reactions:
-                    await message.add_reaction(reaction)
+            # embed = discord.Embed(title=f"__**Map of Surrounding Area: {center.name} - {center.coordinates}:**__",
+            #                       color=0x03f8fc,
+            #                       timestamp=ctx.message.created_at)
+            #
+            # for line in NEIGHBOURS:
+            #     for neighbour in line:
+            #         current_neighbour = getattr(center, neighbour)
+            #         field_value = utilities.build_table(current_neighbour, "description")
+            #
+            #         if field_value == f"":
+            #             field_value = f"> empty"
+            #         embed.add_field(name=f'**{current_neighbour.name}**', value=field_value, inline=True)
+            #     embed.add_field(name='\u200b', value='\u200b', inline=False)
+            #
+            # response = embed
+            response = embed
+            message = await ctx.send(embed=response)
+
+            reactions = []
+            for i in arrow_emojies:
+                reactions.append(i)
+
+            reactions.append(u"\U0001F4DD")
+            reactions.append(u"\U0001F4F1")
+            for reaction in reactions:
+                await message.add_reaction(reaction)
 
     @bot.event
     async def on_reaction_add(reaction, discord_user):
@@ -164,49 +183,59 @@ def discord_integration():
             message = reaction.message
             user = get_user(discord_user.id)
             channel_id = message.channel
-            #channel = bot.get_channel(channel_id)
+            # channel = bot.get_channel(channel_id)
             channel = bot.get_channel(787017194965041172)
             message_id = message.id
             message = await channel.fetch_message(message_id)
+            await reaction.remove(discord_user)
+            #
+            #             if emoji == u"\u2B05":
+            #                 print("left")
+            #                 print(F'Left - user: {user}')
+            # #target_center = center.nw
+            # # center_coordinates = (0,0,0)
+            # # center = maps.find_fragment(center_coordinates)
+            # # embed = build_map_embed(center)
+            # #center = maps.find_fragment()
+            #                 user.viewing_fragment = user.viewing_fragment.w
+            #                 embed = build_map_embed(user.viewing_fragment)
+            #                 await message.edit(embed=embed)
+            #             elif emoji == u"\u2B06":
+            #                 print("up")
+            #                 user.viewing_fragment = user.viewing_fragment.n
+            #                 embed = build_map_embed(user.viewing_fragment)
+            #                 await message.edit(embed=embed)
+            #             elif emoji == u"\u2B07":
+            #                 user.viewing_fragment = user.viewing_fragment.s
+            #                 embed = build_map_embed(user.viewing_fragment)
+            #                 await message.edit(embed=embed)
+            #             elif emoji == u"\u27A1":
+            #                 user.viewing_fragment = user.viewing_fragment.e
+            #                 embed = build_map_embed(user.viewing_fragment)
+            #                 await message.edit(embed=embed)
+            #             elif emoji == u"\U0001F4DD":
+            #                 print("edit")
+            #                 await message.edit(embed="edit")
 
-            if emoji == u"\u2B05":
-                print("left")
-                print(F'Left - user: {user}')
-                #target_center = center.nw
-                # center_coordinates = (0,0,0)
-                # center = maps.find_fragment(center_coordinates)
-                # embed = build_map_embed(center)
-                #center = maps.find_fragment()
-                user.viewing_fragment = user.viewing_fragment.w
-                embed = build_map_embed(user.viewing_fragment)
-                await message.edit(embed=embed)
-            elif emoji == u"\u2B06":
-                print("up")
-                user.viewing_fragment = user.viewing_fragment.n
-                embed = build_map_embed(user.viewing_fragment)
-                await message.edit(embed=embed)
-            elif emoji == u"\u2B07":
-                user.viewing_fragment = user.viewing_fragment.s
-                embed = build_map_embed(user.viewing_fragment)
-                await message.edit(embed=embed)
-            elif emoji == u"\u27A1":
-                user.viewing_fragment = user.viewing_fragment.e
-                embed = build_map_embed(user.viewing_fragment)
-                await message.edit(embed=embed)
-            elif emoji == u"\U0001F4DD":
+            for i in arrow_emojies:
+                if emoji == i:
+                    user.viewing_fragment = getattr(user.viewing_fragment, arrow_emojies[i])
+                    embed = build_map_embed(user.viewing_fragment, user.mobile)
+                    await message.edit(embed=embed)
+                    return
+            if emoji == u"\U0001F4DD":
                 print("edit")
-                await message.edit(embed="edit")
-
-
-
-
-
-
+                await message.edit(content="What did you find there?")
+            elif emoji == u"\U0001F4F1":
+                user.mobile = not user.mobile
+                embed = build_map_embed(user.viewing_fragment, user.mobile)
+                await message.edit(embed=embed)
             # print(message)
             # print(type(message))
-            print(dir(message))
-            # print(message.id)
-
+            # print(dir(message))
+            # print(dir(reaction))
+            # print(dir(emoji))
+            # # print(message.id)
 
         #
         # print(dir(emoji))
@@ -264,13 +293,9 @@ def discord_integration():
     @bot.command(name='MakeTea')
     @commands.check(is_player)
     async def make_tea(ctx):
-        discord_id = ctx.author.id
-        print(f'Registering {discord_id}')
-        user = users.create_user(discord_id)
+        await register(ctx)
         response = f"Beep Boop making the tea... for {ctx.author.name}"
         message = await ctx.send(response)
-        await message.add_reaction(	u"\U0001F375")
-
-
+        await message.add_reaction(u"\U0001F375")
 
     bot.run(DISCORD_TOKEN)
