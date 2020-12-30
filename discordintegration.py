@@ -226,12 +226,28 @@ def discord_integration():
                     return
             if emoji == u"\U0001F4DD":
                 print("edit")
+                await reaction.clear()
                 fragment = user.viewing_fragment
-                await message.edit(content="What did you find there?")
+                await message.edit(content="What did you find there?", embed=None)
                 description_request = await bot.wait_for('message')
                 proposed_log_entry = maps.Log_Entry(time.time(), user, description_request.content)
                 print(f'{description_request}')
+                print(proposed_log_entry.time_stamp)
+                print(proposed_log_entry.author)
                 print(proposed_log_entry.entry)
+                await message.edit(content=f"Do you want to edit the description of {fragment.coordinates}?\n"
+                                           f"{fragment.name} - Old Description was:\n"
+                                           f"{fragment.description}\n"
+                                           f"\n"
+                                           f""
+                                           f"New Timestamp - {proposed_log_entry.time_stamp}\n"
+                                           f"New Author - {proposed_log_entry.author.uid}\n"
+                                           f"New Description:\n"
+                                           f" {proposed_log_entry.entry}")
+                fragment.description_log.insert(0, proposed_log_entry)
+
+
+
                 #reply with edit confirmation
 
             elif emoji == u"\U0001F4F1":
