@@ -3,6 +3,9 @@ import settlements
 import maps
 import users
 import utilities
+import persistance
+import pickle
+import time
 
 entities = {'Character': characters.Character,
             'Settlement': settlements.Settlement}
@@ -100,7 +103,7 @@ def map_tests():
     print("End of Map Tests\n")
 
 def user_tests():
-    print("End of User Tests\n")
+    print("Start of User Tests")
     user1 = users.create_user(1)
     user2 = users.create_user(2)
     user3 = users.create_user(1)
@@ -113,4 +116,48 @@ def user_tests():
     print(user2.used_character_slots)
     print("End of User Tests\n")
 
+def persistance_tests():
+    print("Start of Persistance Tests")
+
+    file_name = "test_file2.pkl"
+    print(file_name)
+    # persistance.save(file_name, maps.Fragment.directory)
+
+    directory = persistance.load(file_name)
+    print(directory)
+    maps.Fragment.directory = directory
+
+
+    # with open(file_name, "wb") as f:
+    #     pickle.dump(users.User.directory, f)
+    #
+    # time.sleep(5)
+    #
+    # with open(file_name, "rb") as f:
+    #     directory = pickle.load(f)
+    # print(directory)
+
+
+
+
+    # test_file = open("test_file.pkl", "wb")
+    # user_save = persistance.save(test_file, users.User.directory)
+    # print(user_save)
+    # # test_file.close()
+    #
+    # test_load = "test_file.pkl"
+    # test_dir = []
+    # print("test_dir")
+    # print(test_dir)
+    # print("test_load")
+    # print(test_load)
+    # print("user_load")
+    # user_load = persistance.load(test_load)
+    # print(user_load)
+    # # print("pickle.load")
+    # loaded = pickle.load(test_load)
+    # loaded2 = pickle.load(test_load)
+    # print(loaded)
+    # print(loaded2)
+    print("End of Persistance Tests\n")
 
