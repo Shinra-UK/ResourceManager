@@ -7,6 +7,7 @@ import settlements
 import time
 import users
 import utilities
+import persistance
 from config import DISCORD_TOKEN, COMMAND_PREFIX, ADMIN_ROLE_ID, PLAYER_ROLE_ID
 
 bot = commands.Bot(command_prefix=COMMAND_PREFIX, case_insensitive=True)
@@ -321,5 +322,19 @@ def discord_integration():
         response = f"Beep Boop making the tea... for {ctx.author.name}"
         message = await ctx.send(response)
         await message.add_reaction(u"\U0001F375")
+
+    @bot.command(name='Save')
+    @commands.check(is_player)
+    async def save(ctx):
+        persistance.save_all()
+        response = f"Saving."
+        await ctx.send(response)
+
+    @bot.command(name='Load')
+    @commands.check(is_admin)
+    async def load(ctx):
+        persistance.load_all()
+        response = f"Loading."
+        await ctx.send(response)
 
     bot.run(DISCORD_TOKEN)

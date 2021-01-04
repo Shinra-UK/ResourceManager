@@ -10,6 +10,7 @@ __license__ = "N/A"
 import logging
 
 import discordintegration
+import persistance
 import tests
 
 logging.basicConfig(level=logging.INFO)
@@ -18,15 +19,17 @@ logging.basicConfig(level=logging.INFO)
 def main():
     """ Main entry point of the app """
     print("Hello World!")
+    persistance.load_all()
 
     # tests.character_tests()
     # tests.settlement_tests()
     # tests.task_tests()
     # tests.map_tests()
     # tests.user_tests()
-    tests.persistance_tests()
+    # tests.persistance_tests()
 
     discordintegration.discord_integration()
+    persistance.save_all()
     print("Goodbye World!")
 
 
