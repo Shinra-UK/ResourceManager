@@ -119,14 +119,22 @@ def user_tests():
 def persistance_tests():
     print("Start of Persistance Tests")
 
-    file_name = "test_file2.pkl"
-    print(file_name)
-    # persistance.save(file_name, maps.Fragment.directory)
+    # file_name = "test_file2.pkl"
+    # print(file_name)
+    # # persistance.save(file_name, maps.Fragment.directory)
+    #
+    # directory = persistance.load(file_name)
+    # print(directory)
+    # maps.Fragment.directory = directory
 
-    directory = persistance.load(file_name)
-    print(directory)
-    maps.Fragment.directory = directory
+    # test_save = persistance.save_all()
 
+    test_load = persistance.load_all()
+    print(users.User.directory)
+    print(settlements.Settlement.directory)
+    print(utilities.Entity.directory)
+    print(maps.Fragment.directory)
+    print(characters.Character.directory)
 
     # with open(file_name, "wb") as f:
     #     pickle.dump(users.User.directory, f)

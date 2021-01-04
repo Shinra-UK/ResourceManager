@@ -19,11 +19,11 @@ def main():
     """ Main entry point of the app """
     print("Hello World!")
 
-    tests.character_tests()
-    tests.settlement_tests()
-    tests.task_tests()
+    # tests.character_tests()
+    # tests.settlement_tests()
+    # tests.task_tests()
     # tests.map_tests()
-    tests.user_tests()
+    # tests.user_tests()
     tests.persistance_tests()
 
     discordintegration.discord_integration()
