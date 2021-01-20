@@ -4,6 +4,7 @@ import maps
 import users
 import utilities
 import persistance
+import re
 import pickle
 import time
 
@@ -169,3 +170,18 @@ def persistance_tests():
     # print(loaded2)
     print("End of Persistance Tests\n")
 
+def re_tests():
+    print("Start of re Tests")
+    string = "Test(1)(2)"
+    print(string)
+    reg = re.findall(r'\(.*?\)', string)
+    print(len(reg))
+    print(reg)
+    for i in reg:
+        currentstring = i
+        substring = i[1:-1]
+        print(currentstring)
+        print(substring)
+
+
+    print("End of re Tests\n")

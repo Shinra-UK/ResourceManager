@@ -7,6 +7,7 @@ import settlements
 import time
 import users
 import utilities
+import re
 import persistance
 from config import DISCORD_TOKEN, COMMAND_PREFIX, ADMIN_ROLE_ID, PLAYER_ROLE_ID
 
@@ -99,7 +100,8 @@ def discord_integration():
     @bot.command(name='menu')
     @commands.check(is_player)
     async def menu(ctx):
-        response = "menu"
+        response = f"Hello, {ctx}:\n" \
+                   ""
         await ctx.send(response)
 
     @bot.command(name='List')
@@ -313,6 +315,7 @@ def discord_integration():
     async def register(ctx):
         discord_id = ctx.author.id
         print(f'Registering {discord_id}')
+        print(f'username is {ctx.author.display_name}')
         user = users.create_user(discord_id)
         if not check_membership(ctx, PLAYER_ROLE_ID):
             role = discord.utils.get(ctx.guild.roles, id=PLAYER_ROLE_ID)
@@ -324,7 +327,6 @@ def discord_integration():
     @bot.command(name='MakeTea')
     @commands.check(is_player)
     async def make_tea(ctx):
-        await register(ctx)
         response = f"Beep Boop making the tea... for {ctx.author.name}"
         message = await ctx.send(response)
         await message.add_reaction(u"\U0001F375")
