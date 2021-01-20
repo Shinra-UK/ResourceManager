@@ -96,6 +96,12 @@ def discord_integration():
         response = "Help is on the way!"
         await ctx.send(response)
 
+    @bot.command(name='menu')
+    @commands.check(is_player)
+    async def menu(ctx):
+        response = "menu"
+        await ctx.send(response)
+
     @bot.command(name='List')
     @commands.check(is_admin)
     async def list_entities(ctx, entity_type="All"):
