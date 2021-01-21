@@ -172,8 +172,16 @@ def persistance_tests():
 
 def re_tests():
     print("Start of re Tests")
-    string = "Test(1)(2)"
+    string = "fxdbxd fcbxd  (1ghftgh)(2ftgch)"
     print(string)
+
+    #user
+    usereg = re.findall(r'^[a-zA-Z].+?(?=\()', string)
+    print(usereg)
+    if len(usereg) > 0:
+        print(usereg[0].strip())
+
+    #characters
     reg = re.findall(r'\(.*?\)', string)
     print(len(reg))
     print(reg)

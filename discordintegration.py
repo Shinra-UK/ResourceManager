@@ -74,12 +74,36 @@ def get_user(uid):
 
 
 def discord_integration():
+    async def get_input(channel, raised_by, content="Beep,boop,buzzzt...ERROR", delay=0):
+        message = await channel.send(content=content)
+        user_input = await bot.wait_for('message', check=check_is_author(raised_by), timeout=300)
+        stripped_user_input = user_input.content.title().strip()
+        await user_input.delete()
+        await message.delete(delay=delay)
+        return stripped_user_input
+
     def check_membership(ctx, role_id):
         print(role_id in ctx.author.roles)
         for role in ctx.author.roles:
             match = role_id == role.id
             if match:
                 return match
+
+    # def check_is_author(m, x):
+    #     print(m)
+    #     print(x)
+    #     return True
+
+    def check_is_author(author):
+        #Add a check to ensure the reply is in the same channel
+        def inner_check(message):
+            if message.author != author:
+                return False
+            else:
+                print(message.author)
+                print(message.channel)
+                return True
+        return inner_check
 
     async def is_admin(ctx):
         return check_membership(ctx, ADMIN_ROLE_ID)
@@ -313,16 +337,92 @@ def discord_integration():
 
     @bot.command(name='Register')
     async def register(ctx):
-        discord_id = ctx.author.id
-        print(f'Registering {discord_id}')
-        print(f'username is {ctx.author.display_name}')
-        user = users.create_user(discord_id)
+        # discord_id = ctx.author.id
+        player_name = ctx.author.display_name
+        raised_by = ctx.author
+        channel_id = ctx.channel
+        # await ctx.message.delete()
+
         if not check_membership(ctx, PLAYER_ROLE_ID):
-            role = discord.utils.get(ctx.guild.roles, id=PLAYER_ROLE_ID)
-            print(role)
-            await ctx.author.add_roles(role)
-        response = user.msg
-        await ctx.send(response)
+            # Prompt for OOC name
+            content = f"Greetings {player_name}\n" \
+                       f"How would you like to be addressed out of character?\n"
+            player_name = await get_input(channel_id, raised_by, content)
+            print(player_name)
+            #Prompt for Character Name
+            content = f"Sure, we'll call you {player_name}.\n" \
+                      f"What is your character's name?"
+            character_name = await get_input(channel_id, raised_by, content)
+            print(character_name)
+            #Confirm choices
+            content = f"Please confirm you would like to use the following:\n" \
+                      f"Your name = {player_name}\n" \
+                      f"Playing as = {character_name}\n" \
+                      f"Is this correct?  Please respond with Yes or No"
+            confirmation = await get_input(channel_id, raised_by, content)
+
+            if confirmation == "Yes":
+                # Finally add the player role
+                role = discord.utils.get(ctx.guild.roles, id=PLAYER_ROLE_ID)
+                await ctx.author.add_roles(role)
+                await get_input(channel_id, raised_by, content=f"Welcome to The Mirror.")
+            if confirmation != "Yes":
+                await get_input(channel_id, raised_by, content="Woops, please use !Register to start again.")
+        else:
+            response = f"Greetings {player_name}\n" \
+                       f"It looks like you are already registered.\n" \
+                       f"Use !Menu to get started."
+            await ctx.send(response)
+
+
+
+        #
+        #
+        #     message = await ctx.send(response)
+        #     userinput = await bot.wait_for('message', check=check_is_author(raised_by), timeout=30)
+        #     username = userinput.content.title().strip()
+        #     await userinput.delete()
+        #     # Prompt for character name
+        #     await message.edit(content=f"Sure, we'll call you {username}.\n"
+        #                                f"What is your character's name?", embed=None)
+        #     character_name = await bot.wait_for('message')
+        #     character_name = character_name.content.title().strip()
+        #     await message.edit(content=f"Please confirm you would like to use the following:\n"
+        #                                f"Your name = {username}\n"
+        #                                f"Playing as = {character_name}\n"
+        #                                f"Is this correct?  Please respond with Yes or No")
+        #     confirmation = await bot.wait_for('message')
+        #     confirmation = confirmation.content.title()
+        #     confirmation = confirmation.strip()
+        #     if confirmation == "Yes":
+        #         # Finally add the player role
+        #         role = discord.utils.get(ctx.guild.roles, id=PLAYER_ROLE_ID)
+        #         await ctx.author.add_roles(role)
+        #         await message.edit(content=f"Welcome to The Mirror.")
+        #     if confirmation != "Yes":
+        #         await message.edit(content="Woops, please use !Register to start again.")
+        # else:
+        #     response = f"Greetings {display_name}\n" \
+        #                f"It looks like you are already registered.\n" \
+        #                f"Use !Menu to get started."
+        #     await ctx.send(response)
+        #     return
+
+
+
+        #Prompt for Character name
+
+
+
+        # print(f'Registering {discord_id}')
+        # print(f'username is {ctx.author.display_name}')
+        # user = users.create_user(discord_id)
+        # if not check_membership(ctx, PLAYER_ROLE_ID):
+        #     role = discord.utils.get(ctx.guild.roles, id=PLAYER_ROLE_ID)
+        #     print(role)
+        #     await ctx.author.add_roles(role)
+        # response = user.msg
+        # await ctx.send(response)
 
     @bot.command(name='MakeTea')
     @commands.check(is_player)
