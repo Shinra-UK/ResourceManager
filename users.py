@@ -2,9 +2,9 @@ import maps
 import utilities
 
 class User:
-    def __init__(self, uid):
+    def __init__(self, uid, player_name):
         self.uid = uid
-        self.name = uid
+        self.name = player_name
         self.character_slots = 1
         self.characters = []
         self.selected_character = None
@@ -22,10 +22,10 @@ class User:
         return len(self.characters)
 
 
-def create_user(uid):
+def create_user(uid, player_name):
     existing = utilities.find(User.directory, "uid", uid)
     if existing is None:
-        new = User(uid)
+        new = User(uid, player_name)
         User.directory.append(new)
         new.msg = f'{new.uid} Has been created'
         print(new.msg)

@@ -74,10 +74,10 @@ def get_user(uid):
 
 
 def discord_integration():
-    async def get_input(channel, raised_by, content="Beep,boop,buzzzt...ERROR", delay=0):
+    async def get_input(channel, raised_by, content="Beep,boop,buzzzt...ERROR", delay=0, timeout=300):
         message = await channel.send(content=content)
         try:
-            user_input = await bot.wait_for('message', check=check_is_author(channel, raised_by), timeout=300)
+            user_input = await bot.wait_for('message', check=check_is_author(channel, raised_by), timeout=timeout)
         except:
             print("likely timeout")
             await message.delete()
@@ -88,7 +88,14 @@ def discord_integration():
             await message.delete(delay=delay)
             return stripped_user_input
 
-
+    async def update_name(ctx, user):
+        player_name = user.name
+        character_list = user.characters
+        selected_character = user.selected_character.name
+        nickname = f"{player_name} ({selected_character})"
+        print(nickname)
+        print(len(nickname))
+        await ctx.author.edit(nick=nickname)
 
 
     def check_membership(ctx, role_id):
@@ -347,7 +354,7 @@ def discord_integration():
 
     @bot.command(name='Register')
     async def register(ctx):
-        # discord_id = ctx.author.id
+        discord_id = ctx.author.id
         player_name = ctx.author.display_name
         raised_by = ctx.author
         channel = ctx.channel
@@ -359,24 +366,34 @@ def discord_integration():
                        f"How would you like to be addressed out of character?\n"
             player_name = await get_input(channel, raised_by, content)
             print(player_name)
+            print(len(player_name))
             #Prompt for Character Name
             content = f"Sure, we'll call you {player_name}.\n" \
                       f"What is your character's name?"
             character_name = await get_input(channel, raised_by, content)
             print(character_name)
-            #Confirm choices
-            content = f"Please confirm you would like to use the following:\n" \
-                      f"Your name = {player_name}\n" \
-                      f"Playing as = {character_name}\n" \
-                      f"Is this correct?  Please respond with Yes or No"
-            confirmation = await get_input(channel, raised_by, content)
+            print(len(character_name))
+            if (len(player_name) >= 14) or (len(character_name) >= 15):
+                confirmation = "No"
+            else:
+                #Confirm choices
+                content = f"Please confirm you would like to use the following:\n" \
+                          f"Your name = {player_name}\n" \
+                          f"Playing as = {character_name}\n" \
+                          f"Is this correct?  Please respond with Yes or No"
+                confirmation = await get_input(channel, raised_by, content)
 
             if confirmation == "Yes":
                 # Create User Object
-
+                user = users.create_user(discord_id, player_name)
                 # Create Character Object
-
+                character = utilities.create(characters.Character, character_name)
+                print(character)
+                user.characters.append(character)
+                user.selected_character = character
                 # Rename to Player(Character)
+                await update_name(ctx, user)
+
 
                 # Finally add the player role
                 role = discord.utils.get(ctx.guild.roles, id=PLAYER_ROLE_ID)
