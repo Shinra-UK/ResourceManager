@@ -76,11 +76,20 @@ def get_user(uid):
 def discord_integration():
     async def get_input(channel, raised_by, content="Beep,boop,buzzzt...ERROR", delay=0):
         message = await channel.send(content=content)
-        user_input = await bot.wait_for('message', check=check_is_author(raised_by), timeout=300)
-        stripped_user_input = user_input.content.title().strip()
-        await user_input.delete()
-        await message.delete(delay=delay)
-        return stripped_user_input
+        try:
+            user_input = await bot.wait_for('message', check=check_is_author(channel, raised_by), timeout=300)
+        except:
+            print("likely timeout")
+            await message.delete()
+            raise TimeoutError
+        else:
+            stripped_user_input = user_input.content.title().strip()
+            await user_input.delete()
+            await message.delete(delay=delay)
+            return stripped_user_input
+
+
+
 
     def check_membership(ctx, role_id):
         print(role_id in ctx.author.roles)
@@ -94,13 +103,14 @@ def discord_integration():
     #     print(x)
     #     return True
 
-    def check_is_author(author):
-        #Add a check to ensure the reply is in the same channel
+    def check_is_author(channel, author):
         def inner_check(message):
-            if message.author != author:
+            if (message.author != author) or (message.channel != channel):
                 return False
             else:
+                print(author)
                 print(message.author)
+                print(channel)
                 print(message.channel)
                 return True
         return inner_check
@@ -217,7 +227,7 @@ def discord_integration():
             message = reaction.message
             user = get_user(discord_user.id)
             channel_id = message.channel
-            # channel = bot.get_channel(channel_id)
+            # channel = bot.get_channel(channel)
             channel = bot.get_channel(787017194965041172)
             message_id = message.id
             message = await channel.fetch_message(message_id)
@@ -340,34 +350,40 @@ def discord_integration():
         # discord_id = ctx.author.id
         player_name = ctx.author.display_name
         raised_by = ctx.author
-        channel_id = ctx.channel
+        channel = ctx.channel
         # await ctx.message.delete()
 
         if not check_membership(ctx, PLAYER_ROLE_ID):
             # Prompt for OOC name
             content = f"Greetings {player_name}\n" \
                        f"How would you like to be addressed out of character?\n"
-            player_name = await get_input(channel_id, raised_by, content)
+            player_name = await get_input(channel, raised_by, content)
             print(player_name)
             #Prompt for Character Name
             content = f"Sure, we'll call you {player_name}.\n" \
                       f"What is your character's name?"
-            character_name = await get_input(channel_id, raised_by, content)
+            character_name = await get_input(channel, raised_by, content)
             print(character_name)
             #Confirm choices
             content = f"Please confirm you would like to use the following:\n" \
                       f"Your name = {player_name}\n" \
                       f"Playing as = {character_name}\n" \
                       f"Is this correct?  Please respond with Yes or No"
-            confirmation = await get_input(channel_id, raised_by, content)
+            confirmation = await get_input(channel, raised_by, content)
 
             if confirmation == "Yes":
+                # Create User Object
+
+                # Create Character Object
+
+                # Rename to Player(Character)
+
                 # Finally add the player role
                 role = discord.utils.get(ctx.guild.roles, id=PLAYER_ROLE_ID)
                 await ctx.author.add_roles(role)
-                await get_input(channel_id, raised_by, content=f"Welcome to The Mirror.")
+                await get_input(channel, raised_by, content=f"Welcome to The Mirror.")
             if confirmation != "Yes":
-                await get_input(channel_id, raised_by, content="Woops, please use !Register to start again.")
+                await get_input(channel, raised_by, content="Woops, please use !Register to start again.")
         else:
             response = f"Greetings {player_name}\n" \
                        f"It looks like you are already registered.\n" \
