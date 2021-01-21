@@ -141,9 +141,14 @@ def discord_integration():
     @bot.command(name='menu')
     @commands.check(is_player)
     async def menu(ctx):
-        response = f"Hello, {ctx}:\n" \
-                   ""
-        await ctx.send(response)
+        raised_by = ctx.author
+        channel = ctx.channel
+
+        content = "Hello"
+        menu_selection = await get_input(channel, raised_by, content)
+
+
+
 
     @bot.command(name='List')
     @commands.check(is_admin)
