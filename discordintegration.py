@@ -143,9 +143,28 @@ def discord_integration():
     async def menu(ctx):
         raised_by = ctx.author
         channel = ctx.channel
+        user = get_user(ctx.author.id)
 
-        content = "Hello"
+        content = f"Hello {user.selected_character.name}.  Please select from the options below:\n" \
+                  f"1. Change Character\n" \
+                  f"2. View Map\n" \
+                  f"3. Session Log\n" \
+                  f"4. Tasks\n"
         menu_selection = await get_input(channel, raised_by, content)
+
+        if menu_selection == "1":
+            pass
+        elif menu_selection == "2":
+            viewing_fragment = user.viewing_fragment
+            print(user)
+            print(user.viewing_fragment)
+            await embed_map(ctx)
+        elif menu_selection == "3":
+            pass
+        elif menu_selection == "4":
+            pass
+        else:
+            pass
 
 
 
@@ -240,7 +259,7 @@ def discord_integration():
             user = get_user(discord_user.id)
             channel_id = message.channel
             # channel = bot.get_channel(channel)
-            channel = bot.get_channel(787017194965041172)
+            channel = bot.get_channel(801913604374790245)
             message_id = message.id
             message = await channel.fetch_message(message_id)
             await reaction.remove(discord_user)
