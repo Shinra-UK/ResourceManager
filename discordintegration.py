@@ -256,10 +256,16 @@ def discord_integration():
         if reaction.me:
             emoji = reaction.emoji
             message = reaction.message
+            print(emoji)
+            print(message)
+            print(message.channel.id)
             user = get_user(discord_user.id)
-            channel_id = message.channel
-            # channel = bot.get_channel(channel)
-            channel = bot.get_channel(801913604374790245)
+            # channel_id = message.channel.id
+            # channel = bot.get_channel(channel_id)
+            # channel = bot.get_channel(801913604374790245)
+            channel = message.channel
+            print(channel)
+            print(message.channel)
             message_id = message.id
             message = await channel.fetch_message(message_id)
             await reaction.remove(discord_user)
