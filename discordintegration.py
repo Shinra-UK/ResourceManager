@@ -7,9 +7,11 @@ import settlements
 import time
 import users
 import utilities
-import re
+import asyncio
 import persistance
-from config import DISCORD_TOKEN, COMMAND_PREFIX, ADMIN_ROLE_ID, PLAYER_ROLE_ID
+
+
+from config import DISCORD_TOKEN, COMMAND_PREFIX, ADMIN_ROLE_ID, PLAYER_ROLE_ID, EMBED_COLOR
 
 bot = commands.Bot(command_prefix=COMMAND_PREFIX, case_insensitive=True)
 
@@ -26,7 +28,7 @@ entities = {'Character': characters.Character,
             'A': utilities.Entity
             }
 
-arrow_emojies = {u"\u2199": 'sw',
+arrow_emojis = {u"\u2199": 'sw',
                  u"\u2B05": 'w',
                  u"\u2196": 'nw',
                  u"\u2B06": 'n',
@@ -34,10 +36,27 @@ arrow_emojies = {u"\u2199": 'sw',
                  u"\u27A1": 'e',
                  u"\u2198": 'se',
                  u"\u2B07": 's'
-                 }
+                }
 
 
 # NEIGHBOURS = (("nw", "n", "ne"), ("w", "c", "e"), ("sw", "s", "se"))
+
+def build_options_embed(emojis, title=" ", color=EMBED_COLOR):
+    embed = discord.Embed(title=title, color=color)
+    for key, value in emojis.items():
+        name = f"{key}: {value} \n"
+        field_value = "-"
+        embed.add_field(name=name, value=field_value, inline=False)
+    return embed
+
+def build_options_content(emojis):
+    content = ""
+    for key, value in emojis.items():
+        line = f"{key}: {value} \n"
+        content += line
+    return content
+
+
 
 def build_map_embed(center, mobile=False):
     if mobile:
@@ -88,6 +107,24 @@ def discord_integration():
             await message.delete(delay=delay)
             return stripped_user_input
 
+    async def get_reaction_input(channel, raised_by, content, emojis, timeout=10):
+        content += build_options_content(emojis)
+        message = await channel.send(content=content)
+
+        for emoji in emojis:
+            await message.add_reaction(emoji)
+
+        try:
+            reaction = await bot.wait_for('reaction_add', check=check_reaction(message, raised_by), timeout=timeout)
+            selection = reaction[0].emoji
+            user_input = emojis[selection]
+            return user_input
+        except asyncio.TimeoutError:
+            await message.delete()
+            return None
+
+
+
     async def update_name(ctx, user):
         player_name = user.name
         character_list = user.characters
@@ -112,6 +149,7 @@ def discord_integration():
 
     def check_is_author(channel, author):
         def inner_check(message):
+            print(f"message in check:\n{message}\n")
             if (message.author != author) or (message.channel != channel):
                 return False
             else:
@@ -119,6 +157,20 @@ def discord_integration():
                 print(message.author)
                 print(channel)
                 print(message.channel)
+                return True
+        return inner_check
+
+    def check_reaction(message, raised_by):
+        def inner_check(reaction, reactor):
+            print(f"reaction:\n{reaction}\n")
+            print(f"reactor:\n{reactor}\n")
+
+            print(f"raised_by {raised_by} == {reactor}")
+            print(f"reaction {reaction}")
+            print(f"message {message} == {reaction.message}")
+            if (reaction.message != message) or (reactor != raised_by) or (not reaction.me):
+                return False
+            else:
                 return True
         return inner_check
 
@@ -145,25 +197,40 @@ def discord_integration():
         channel = ctx.channel
         user = get_user(ctx.author.id)
 
-        content = f"Hello {user.selected_character.name}.  Please select from the options below:\n" \
-                  f"1. Change Character\n" \
-                  f"2. View Map\n" \
-                  f"3. Session Log\n" \
-                  f"4. Tasks\n"
-        menu_selection = await get_input(channel, raised_by, content)
+        content = f"Hello {user.selected_character.name}.  Please select from the options below:\n"
+        menu_emojis = {u"\U0001f939\U0001f3ff": 'Change Character',
+                         u"\U0001f5fa\uFE0F": 'View Map',
+                         u"\U0001fab5": 'Session Log',
+                         u"\U0001f477\U0001f3fd": 'Tasks',
+                         u"\u274C": 'Cancel',
+                         }
 
-        if menu_selection == "1":
-            pass
-        elif menu_selection == "2":
+
+        # content += build_options_content(menu_emojis)
+        # menu_message = await ctx.send(content=content)
+        # for emoji in menu_emojis:
+        #     await menu_message.add_reaction(emoji)
+
+        # reaction = await bot.wait_for('reaction_add', check=check_reaction(menu_message, raised_by), timeout=20)
+        # menu_selection = reaction[0].emoji
+        # menu_selection = menu_emojis[menu_selection]
+        menu_selection = await get_reaction_input(channel, raised_by, content, menu_emojis)
+        print(f"menu_selection is {menu_selection}")
+
+
+        if menu_selection == 'Change Character':
+            print('Change Character')
+        elif menu_selection == 'View Map':
             viewing_fragment = user.viewing_fragment
             print(user)
             print(user.viewing_fragment)
             await embed_map(ctx)
-        elif menu_selection == "3":
-            pass
-        elif menu_selection == "4":
-            pass
+        elif menu_selection == 'Session Log':
+            print('Session Log')
+        elif menu_selection == 'Tasks':
+            print('Tasks')
         else:
+            print("CANCEL")
             pass
 
 
@@ -240,7 +307,7 @@ def discord_integration():
             message = await ctx.send(embed=response)
 
             reactions = []
-            for i in arrow_emojies:
+            for i in arrow_emojis:
                 reactions.append(i)
 
             reactions.append(u"\U0001F4DD")
@@ -298,9 +365,9 @@ def discord_integration():
             #                 print("edit")
             #                 await message.edit(embed="edit")
 
-            for i in arrow_emojies:
+            for i in arrow_emojis:
                 if emoji == i:
-                    user.viewing_fragment = getattr(user.viewing_fragment, arrow_emojies[i])
+                    user.viewing_fragment = getattr(user.viewing_fragment, arrow_emojis[i])
                     embed = build_map_embed(user.viewing_fragment, user.mobile)
                     await message.edit(embed=embed)
                     return
