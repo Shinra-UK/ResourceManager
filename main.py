@@ -19,7 +19,7 @@ logging.basicConfig(level=logging.INFO)
 def main():
     """ Main entry point of the app """
     print("Hello World!")
-    # persistance.load_all()
+    persistance.load_all()
 
     # tests.character_tests()
     # tests.settlement_tests()
@@ -27,7 +27,8 @@ def main():
     # tests.map_tests()
     # tests.user_tests()
     # tests.persistance_tests()
-    tests.re_tests()
+    # tests.re_tests()
+    tests.menu_tests()
 
     discordintegration.discord_integration()
     # persistance.save_all()

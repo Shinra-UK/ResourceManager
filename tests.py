@@ -190,6 +190,11 @@ def re_tests():
         substring = i[1:-1]
         print(currentstring)
         print(substring)
-
-
     print("End of re Tests\n")
+
+def menu_tests():
+    print("Start of menu Tests")
+    test_user = users.User.directory[0]
+    test_user.character_slots = 4
+    print(test_user)
+    print("End of menu Tests\n")

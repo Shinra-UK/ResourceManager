@@ -13,7 +13,9 @@ def find(directory, attribute, value):
 def create(entity, name):
     name = name.title()
     existing = find(entity.directory, "name", name)
-    if existing is None:
+    if len(name) >= 15:
+        pass
+    elif existing is None:
         new = entity(name)
         print(new.name + " Has been created")
         entity.directory.append(new)

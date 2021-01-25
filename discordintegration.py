@@ -204,7 +204,7 @@ def discord_integration():
         user = get_user(ctx.author.id)
 
         content = f"Hello {user.selected_character.name}.  Please select from the options below:\n"
-        menu_emojis = {u"\U0001f939\U0001f3ff": 'Change Character',
+        menu_emojis = {u"\U0001f939\U0001f3ff": 'Characters',
                          u"\U0001f5fa\uFE0F": 'View Map',
                          u"\U0001fab5": 'Session Log',
                          u"\U0001f477\U0001f3fd": 'Tasks',
@@ -213,8 +213,9 @@ def discord_integration():
 
         menu_selection = await get_reaction_input(channel, raised_by, content, menu_emojis)
         print(f"menu_selection is {menu_selection}")
-        if menu_selection == 'Change Character':
+        if menu_selection == 'Characters':
             print('Change Character')
+            await change_character(ctx)
         elif menu_selection == 'View Map':
             viewing_fragment = user.viewing_fragment
             print(user)
@@ -228,8 +229,67 @@ def discord_integration():
             print("CANCEL")
             pass
 
+    @bot.command(name="character")
+    @commands.check(is_player)
+    async def change_character(ctx):
+        raised_by = ctx.author
+        channel = ctx.channel
+        user = get_user(ctx.author.id)
+        num_characters = len(user.characters)
 
+        content = f"You are now playing as {user.selected_character.name}\n"
+        if num_characters >= 1:
+            pass
+        else:
+            character_list = ""
+            for i in user.characters:
+                character_list += f"{i.name}, "
+            content += f"Your other characters are {character_list}\n"
 
+        if num_characters >= user.character_slots:
+            content += f"You have used all of your character slots ({user.character_slots})\n"
+        else:
+            content += f"You are currently only using {num_characters}/{user.character_slots} character slots\n"
+
+        change_character_emojis = {u"\U0001f504": 'Swap',
+                                   u"\U0001f195": 'New',
+                                   u"\u2620\uFE0F": 'Retire',
+                                   u"\u274C": 'Return to Menu',
+                                   }
+        change_character_selection = await get_reaction_input(channel, raised_by, content, change_character_emojis)
+
+        if change_character_selection == 'Swap':
+            print('Change Character')
+        elif change_character_selection == 'New':
+            print('New')
+            if num_characters >= user.character_slots:
+                content = f"Unable to create a new character because:\n" \
+                          f"You have used all of your character slots ({user.character_slots})\n"
+                await destruct_message(channel, content)
+                await menu(ctx)
+            else:
+                name = await get_input(channel, raised_by, "Please provide your new character's name:")
+                existing = utilities.find(characters.Character.directory, "name", name)
+                if len(name) >= 15:
+                    await destruct_message(channel, "That name is too long")
+                    await menu(ctx)
+                elif existing is None:
+                    new_character = utilities.create(characters.Character, name)
+                    await destruct_message(channel, new_character.msg)
+                    await menu(ctx)
+                else:
+                    content = f"It looks like the name {name} is already in use."
+                    await destruct_message(channel, content)
+                    await menu(ctx)
+
+        elif change_character_selection == 'Retire':
+            print('Retire')
+        elif change_character_selection == 'Return to Menu':
+            print('Return to Menu')
+            await menu(ctx)
+        else:
+            print("CANCEL")
+            pass
 
     @bot.command(name='List')
     @commands.check(is_admin)
@@ -469,6 +529,12 @@ def discord_integration():
             print(character_name)
             print(len(character_name))
             if (len(player_name) >= 14) or (len(character_name) >= 15):
+                content = f"One of your names are too long."
+                await destruct_message(channel, content)
+                confirmation = "No"
+            elif utilities.find(characters.Character, "name", character_name):
+                content = f"It looks like the name {name} is already in use."
+                await destruct_message(channel, content)
                 confirmation = "No"
             else:
                 #Confirm choices
@@ -502,55 +568,6 @@ def discord_integration():
                        f"Use !Menu to get started."
             await destruct_message(channel, response)
 
-
-
-        #
-        #
-        #     message = await ctx.send(response)
-        #     userinput = await bot.wait_for('message', check=check_is_author(raised_by), timeout=30)
-        #     username = userinput.content.title().strip()
-        #     await userinput.delete()
-        #     # Prompt for character name
-        #     await message.edit(content=f"Sure, we'll call you {username}.\n"
-        #                                f"What is your character's name?", embed=None)
-        #     character_name = await bot.wait_for('message')
-        #     character_name = character_name.content.title().strip()
-        #     await message.edit(content=f"Please confirm you would like to use the following:\n"
-        #                                f"Your name = {username}\n"
-        #                                f"Playing as = {character_name}\n"
-        #                                f"Is this correct?  Please respond with Yes or No")
-        #     confirmation = await bot.wait_for('message')
-        #     confirmation = confirmation.content.title()
-        #     confirmation = confirmation.strip()
-        #     if confirmation == "Yes":
-        #         # Finally add the player role
-        #         role = discord.utils.get(ctx.guild.roles, id=PLAYER_ROLE_ID)
-        #         await ctx.author.add_roles(role)
-        #         await message.edit(content=f"Welcome to The Mirror.")
-        #     if confirmation != "Yes":
-        #         await message.edit(content="Woops, please use !Register to start again.")
-        # else:
-        #     response = f"Greetings {display_name}\n" \
-        #                f"It looks like you are already registered.\n" \
-        #                f"Use !Menu to get started."
-        #     await ctx.send(response)
-        #     return
-
-
-
-        #Prompt for Character name
-
-
-
-        # print(f'Registering {discord_id}')
-        # print(f'username is {ctx.author.display_name}')
-        # user = users.create_user(discord_id)
-        # if not check_membership(ctx, PLAYER_ROLE_ID):
-        #     role = discord.utils.get(ctx.guild.roles, id=PLAYER_ROLE_ID)
-        #     print(role)
-        #     await ctx.author.add_roles(role)
-        # response = user.msg
-        # await ctx.send(response)
 
     @bot.command(name='MakeTea')
     @commands.check(is_player)
