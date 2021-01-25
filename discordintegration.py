@@ -93,19 +93,18 @@ def get_user(uid):
 
 
 def discord_integration():
-    async def get_input(channel, raised_by, content="Beep,boop,buzzzt...ERROR", delay=0, timeout=300):
+    async def get_input(channel, raised_by, content="Beep,boop,buzzzt...ERROR", delay=0, timeout=30):
         message = await channel.send(content=content)
         try:
             user_input = await bot.wait_for('message', check=check_is_author(channel, raised_by), timeout=timeout)
-        except:
-            print("likely timeout")
-            await message.delete()
-            raise TimeoutError
-        else:
             stripped_user_input = user_input.content.title().strip()
             await user_input.delete()
             await message.delete(delay=delay)
             return stripped_user_input
+        except asyncio.TimeoutError:
+            await message.delete()
+            await destruct_message(channel, content="Selection Timed Out.")
+           # raise TimeoutError
 
     async def get_reaction_input(channel, raised_by, content, emojis, timeout=10):
         content += build_options_content(emojis)
@@ -118,10 +117,17 @@ def discord_integration():
             reaction = await bot.wait_for('reaction_add', check=check_reaction(message, raised_by), timeout=timeout)
             selection = reaction[0].emoji
             user_input = emojis[selection]
+            await message.delete()
             return user_input
         except asyncio.TimeoutError:
             await message.delete()
+            await destruct_message(channel, content="Selection Timed Out.")
             return None
+
+    async def destruct_message(channel, content, delay=30):
+        message = await channel.send(content=content)
+        await message.delete(delay=delay)
+        return None
 
 
 
@@ -205,19 +211,8 @@ def discord_integration():
                          u"\u274C": 'Cancel',
                          }
 
-
-        # content += build_options_content(menu_emojis)
-        # menu_message = await ctx.send(content=content)
-        # for emoji in menu_emojis:
-        #     await menu_message.add_reaction(emoji)
-
-        # reaction = await bot.wait_for('reaction_add', check=check_reaction(menu_message, raised_by), timeout=20)
-        # menu_selection = reaction[0].emoji
-        # menu_selection = menu_emojis[menu_selection]
         menu_selection = await get_reaction_input(channel, raised_by, content, menu_emojis)
         print(f"menu_selection is {menu_selection}")
-
-
         if menu_selection == 'Change Character':
             print('Change Character')
         elif menu_selection == 'View Map':
@@ -462,8 +457,11 @@ def discord_integration():
             content = f"Greetings {player_name}\n" \
                        f"How would you like to be addressed out of character?\n"
             player_name = await get_input(channel, raised_by, content)
-            print(player_name)
-            print(len(player_name))
+
+            if player_name == None:
+                await destruct_message(channel, "Please use !Register to start again")
+                return None
+
             #Prompt for Character Name
             content = f"Sure, we'll call you {player_name}.\n" \
                       f"What is your character's name?"
@@ -495,14 +493,14 @@ def discord_integration():
                 # Finally add the player role
                 role = discord.utils.get(ctx.guild.roles, id=PLAYER_ROLE_ID)
                 await ctx.author.add_roles(role)
-                await get_input(channel, raised_by, content=f"Welcome to The Mirror.")
+                await destruct_message(channel, content=f"Welcome to The Mirror.")
             if confirmation != "Yes":
-                await get_input(channel, raised_by, content="Woops, please use !Register to start again.")
+                await destruct_message(channel, content="Woops, please use !Register to start again.")
         else:
             response = f"Greetings {player_name}\n" \
                        f"It looks like you are already registered.\n" \
                        f"Use !Menu to get started."
-            await ctx.send(response)
+            await destruct_message(channel, response)
 
 
 
