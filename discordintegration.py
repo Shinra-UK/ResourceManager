@@ -215,7 +215,7 @@ def discord_integration():
         print(f"menu_selection is {menu_selection}")
         if menu_selection == 'Characters':
             print('Change Character')
-            await change_character(ctx)
+            await character_menu(ctx)
         elif menu_selection == 'View Map':
             viewing_fragment = user.viewing_fragment
             print(user)
@@ -231,18 +231,18 @@ def discord_integration():
 
     @bot.command(name="character")
     @commands.check(is_player)
-    async def change_character(ctx):
+    async def character_menu(ctx):
         raised_by = ctx.author
         channel = ctx.channel
         user = get_user(ctx.author.id)
         num_characters = len(user.characters)
 
         content = f"You are now playing as {user.selected_character.name}\n"
-        if num_characters >= 1:
+        if num_characters <= 1:
             pass
         else:
             character_list = ""
-            for i in user.characters:
+            for i in user.characters[1:]:
                 character_list += f"{i.name}, "
             content += f"Your other characters are {character_list}\n"
 
@@ -259,37 +259,88 @@ def discord_integration():
         change_character_selection = await get_reaction_input(channel, raised_by, content, change_character_emojis)
 
         if change_character_selection == 'Swap':
+            await swap_character(ctx)
             print('Change Character')
         elif change_character_selection == 'New':
             print('New')
-            if num_characters >= user.character_slots:
-                content = f"Unable to create a new character because:\n" \
-                          f"You have used all of your character slots ({user.character_slots})\n"
-                await destruct_message(channel, content)
-                await menu(ctx)
-            else:
-                name = await get_input(channel, raised_by, "Please provide your new character's name:")
-                existing = utilities.find(characters.Character.directory, "name", name)
-                if len(name) >= 15:
-                    await destruct_message(channel, "That name is too long")
-                    await menu(ctx)
-                elif existing is None:
-                    new_character = utilities.create(characters.Character, name)
-                    await destruct_message(channel, new_character.msg)
-                    await menu(ctx)
-                else:
-                    content = f"It looks like the name {name} is already in use."
-                    await destruct_message(channel, content)
-                    await menu(ctx)
-
+            await new_character(ctx)
         elif change_character_selection == 'Retire':
             print('Retire')
+            await retire_character(ctx)
         elif change_character_selection == 'Return to Menu':
             print('Return to Menu')
             await menu(ctx)
         else:
             print("CANCEL")
             pass
+
+    async def swap_character(ctx):
+        channel = ctx.channel
+        user = get_user(ctx.author.id)
+
+        previously_selected = user.characters.pop(0)
+        user.characters.append(previously_selected)
+        user.selected_character = user.characters[0]
+
+        content = f"That's enough {previously_selected.name}!\n" \
+                  f"{user.selected_character.name} I choose you!"
+        await destruct_message(channel, content)
+        await character_menu(ctx)
+
+
+    async def new_character(ctx):
+        raised_by = ctx.author
+        channel = ctx.channel
+        user = get_user(ctx.author.id)
+        num_characters = len(user.characters)
+
+        if num_characters >= user.character_slots:
+            content = f"Unable to create a new character because:\n" \
+                      f"You have used all of your character slots ({user.character_slots})\n"
+            await destruct_message(channel, content)
+            await character_menu(ctx)
+        else:
+            name = await get_input(channel, raised_by, "Please provide your new character's name:")
+            existing = utilities.find(characters.Character.directory, "name", name)
+            if len(name) >= 15:
+                await destruct_message(channel, "That name is too long")
+                await character_menu(ctx)
+            elif existing is None:
+                new = utilities.create(characters.Character, name)
+                user.characters.append(new)
+                await destruct_message(channel, new.msg)
+                await character_menu(ctx)
+            else:
+                content = f"It looks like the name {name} is already in use."
+                await destruct_message(channel, content)
+                await character_menu(ctx)
+
+    async def retire_character(ctx):
+        raised_by = ctx.author
+        channel = ctx.channel
+        user = get_user(ctx.author.id)
+
+        content = f"Are you sure you want to retire {user.selected_character.name}?\n" \
+                  f"This can't be undone.\n"
+
+        retire_character_emojis = {u"\u274E": 'Return to Menu',
+                                   u"\U0001f6b7": 'Return to Menu',
+                                   u"\U0001f44e\U0001f3fe": 'Return to Menu',
+                                   u"\u2620\uFE0F": 'Retire',
+                                   u"\u26D4": 'Return to Menu',
+                                   u"\U0001f645": 'Return to Menu',
+                                   u"\u274C": 'Return to Menu',
+                                   }
+        confirmation = await get_reaction_input(channel, raised_by, content, retire_character_emojis)
+        if confirmation == 'Retire':
+            retired_character = user.selected_character
+            user.characters.remove(retired_character)
+            content = f"{retired_character.name} has been removed from your character list.\n" \
+                      f"They will be retired once you swap to a new character."
+            await destruct_message(channel, content)
+
+        await character_menu(ctx)
+
 
     @bot.command(name='List')
     @commands.check(is_admin)
