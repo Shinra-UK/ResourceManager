@@ -106,11 +106,16 @@ def discord_integration():
             await destruct_message(channel, content="Selection Timed Out.")
            # raise TimeoutError
 
-    async def get_reaction_input(channel, raised_by, content, emojis, timeout=10, key=True):
+    async def get_reaction_input(channel, raised_by, content, emojis, timeout=10, key=True, **embed):
         if key == True:
             content += build_options_content(emojis)
 
-        message = await channel.send(content=content)
+        print(embed)
+        if embed:
+            message = await channel.send(content=content, embed=embed['embed'])
+            pass
+        else:
+            message = await channel.send(content=content)
 
         for emoji in emojis:
             await message.add_reaction(emoji)
@@ -353,16 +358,18 @@ def discord_integration():
         user = get_user(ctx.author.id)
 
         content = f"Hello {user.selected_character.name}.  Please select from the options below:\n"
-        map_menu_emojis = {u"\U0001f939\U0001f3ff": 'Summary View',
-                       u"\U0001f5fa\uFE0F": 'Detailed / Mobile View',
-                       u"\u274C": 'Return To Menu',
+        map_menu_emojis = {u"\U0001f5fa\uFE0F": 'Summary View',
+                           u"\U0001F4F1": 'Detailed / Mobile View',
+                           u"\u274C": 'Return To Menu',
                        }
 
         map_menu_selection = await get_reaction_input(channel, raised_by, content, map_menu_emojis)
 
         if map_menu_selection == 'Summary View':
+            await summary_map(ctx)
             print('Summary View')
         elif map_menu_selection == 'Detailed / Mobile View':
+            await detailed_map(ctx)
             print('Detailed / Mobile View')
         elif map_menu_selection == 'Return to Menu':
             print('Return to Menu')
@@ -371,6 +378,52 @@ def discord_integration():
             print("CANCEL")
             await menu(ctx)
             pass
+
+    async def summary_map(ctx):
+        raised_by = ctx.author
+        channel = ctx.channel
+        user = get_user(ctx.author.id)
+        center_coordinates = user.viewing_fragment.coordinates
+        center = maps.find_fragment(center_coordinates)
+
+        center.update_neighbours()
+
+        content = "-"
+        embed = build_map_embed(center)
+
+        summary_map_emojis = arrow_emojis
+        summary_map_emojis.update({u"\U0001F4F1": 'Detailed / Mobile View',
+                                    u"\u274C": 'Return To Menu'})
+
+        summary_map_selection = await get_reaction_input(channel, raised_by, content, summary_map_emojis, key=False, embed=embed)
+
+        for i in arrow_emojis:
+            if summary_map_selection == arrow_emojis[i]:
+                user.viewing_fragment = getattr(user.viewing_fragment, summary_map_selection)
+                await refresh_map(ctx)
+
+        if summary_map_selection == 'Detailed / Mobile View':
+            await detailed_map(ctx)
+            print('Detailed / Mobile View')
+        elif summary_map_selection == 'Return to Menu':
+            print('Return to Menu')
+            await map_menu(ctx)
+        else:
+            print("CANCEL")
+            await map_menu(ctx)
+            pass
+
+
+    async def detailed_map(ctx):
+        await map_menu(ctx)
+
+    async def refresh_map(ctx, detailed=False):
+        user = get_user(ctx.author.id)
+        user.viewing_fragment.update_neighbours()
+        if detailed:
+            await detailed_map(ctx)
+        else:
+            await summary_map(ctx)
 
 
     @bot.command(name='List')
@@ -392,7 +445,7 @@ def discord_integration():
         response = embed
         await ctx.send(embed=response)
 
-    @bot.command(name='Map')
+    @bot.command(name='OldMap')
     @commands.check(is_admin)
     async def embed_map(ctx, *center_coordinates):
         user = get_user(ctx.author.id)
@@ -452,79 +505,75 @@ def discord_integration():
             for reaction in reactions:
                 await message.add_reaction(reaction)
 
-    @bot.event
-    async def on_reaction_add(reaction, discord_user):
-        if discord_user.bot:
-            return
-
-        if reaction.me:
-            emoji = reaction.emoji
-            message = reaction.message
-            print(emoji)
-            print(message)
-            print(message.channel.id)
-            user = get_user(discord_user.id)
-            # channel_id = message.channel.id
-            # channel = bot.get_channel(channel_id)
-            # channel = bot.get_channel(801913604374790245)
-            channel = message.channel
-            print(channel)
-            print(message.channel)
-            message_id = message.id
-            message = await channel.fetch_message(message_id)
-            await reaction.remove(discord_user)
+    # @bot.event
+    # async def on_reaction_add(reaction, discord_user):
+    #     if discord_user.bot:
+    #         return
+    #
+    #     if reaction.me:
+    #         emoji = reaction.emoji
+    #         message = reaction.message
+    #
+    #         await reaction.remove(discord_user)
 
 
-            for i in arrow_emojis:
-                if emoji == i:
-                    user.viewing_fragment = getattr(user.viewing_fragment, arrow_emojis[i])
-                    embed = build_map_embed(user.viewing_fragment, user.mobile)
-                    await message.edit(embed=embed)
-                    return
-            if emoji == u"\U0001F4DD":
-                print("edit")
-                await reaction.clear()
-                fragment = user.viewing_fragment
-                await message.edit(content="What did you find there?", embed=None)
-                description_request = await bot.wait_for('message')
-                proposed_log_entry = maps.Log_Entry(time.time(), user, description_request.content)
-                print(f'{description_request}')
-                print(proposed_log_entry.time_stamp)
-                print(proposed_log_entry.author)
-                print(proposed_log_entry.entry)
-                await message.edit(content=f"Do you want to edit the description of {fragment.coordinates}?\n"
-                                           f"{fragment.name} - Old Description was:\n"
-                                           f"{fragment.description}\n"
-                                           f"\n"
-                                           f""
-                                           f"New Timestamp - {proposed_log_entry.time_stamp}\n"
-                                           f"New Author - {proposed_log_entry.author.uid}\n"
-                                           f"New Description:\n"
-                                           f" {proposed_log_entry.entry}")
-                fragment.description_log.insert(0, proposed_log_entry)
+    # @bot.event
+    # async def on_reaction_add(reaction, discord_user):
+    #     if discord_user.bot:
+    #         return
+    #
+    #     if reaction.me:
+    #         emoji = reaction.emoji
+    #         message = reaction.message
+    #         print(emoji)
+    #         print(message)
+    #         print(message.channel.id)
+    #         user = get_user(discord_user.id)
+    #         # channel_id = message.channel.id
+    #         # channel = bot.get_channel(channel_id)
+    #         # channel = bot.get_channel(801913604374790245)
+    #         channel = message.channel
+    #         print(channel)
+    #         print(message.channel)
+    #         message_id = message.id
+    #         message = await channel.fetch_message(message_id)
+    #         await reaction.remove(discord_user)
+    #
+    #
+    #         for i in arrow_emojis:
+    #             if emoji == i:
+    #                 user.viewing_fragment = getattr(user.viewing_fragment, arrow_emojis[i])
+    #                 embed = build_map_embed(user.viewing_fragment, user.mobile)
+    #                 await message.edit(embed=embed)
+    #                 return
+    #         if emoji == u"\U0001F4DD":
+    #             print("edit")
+    #             await reaction.clear()
+    #             fragment = user.viewing_fragment
+    #             await message.edit(content="What did you find there?", embed=None)
+    #             description_request = await bot.wait_for('message')
+    #             proposed_log_entry = maps.Log_Entry(time.time(), user, description_request.content)
+    #             print(f'{description_request}')
+    #             print(proposed_log_entry.time_stamp)
+    #             print(proposed_log_entry.author)
+    #             print(proposed_log_entry.entry)
+    #             await message.edit(content=f"Do you want to edit the description of {fragment.coordinates}?\n"
+    #                                        f"{fragment.name} - Old Description was:\n"
+    #                                        f"{fragment.description}\n"
+    #                                        f"\n"
+    #                                        f""
+    #                                        f"New Timestamp - {proposed_log_entry.time_stamp}\n"
+    #                                        f"New Author - {proposed_log_entry.author.uid}\n"
+    #                                        f"New Description:\n"
+    #                                        f" {proposed_log_entry.entry}")
+    #             fragment.description_log.insert(0, proposed_log_entry)
+    #
+    #
+    #         elif emoji == u"\U0001F4F1":
+    #             user.mobile = not user.mobile
+    #             embed = build_map_embed(user.viewing_fragment, user.mobile)
+    #             await message.edit(embed=embed)
 
-
-
-                #reply with edit confirmation
-
-            elif emoji == u"\U0001F4F1":
-                user.mobile = not user.mobile
-                embed = build_map_embed(user.viewing_fragment, user.mobile)
-                await message.edit(embed=embed)
-            # print(message)
-            # print(type(message))
-            # print(dir(message))
-            # print(dir(reaction))
-            # print(dir(emoji))
-            # # print(message.id)
-
-        #
-        # print(dir(emoji))
-        # print(dir(reaction.me))
-        # print(dir(reaction.message))
-        # print(reaction.me)
-        # print(reaction.message)
-        # print(dir(user))
 
     @bot.command(name='Create')
     @commands.check(is_admin)
@@ -628,7 +677,16 @@ def discord_integration():
     @commands.check(is_player)
     async def make_tea(ctx):
         response = f"Beep Boop making the tea... for {ctx.author.name}"
-        message = await ctx.send(response)
+        long_string = ""
+        for i in range(205):
+            long_string += "tea! "
+        print(len(long_string))
+
+        embed = discord.Embed(title="Test")
+        embed.add_field(name="tea!", value=long_string)
+
+
+        message = await ctx.send(response, embed=embed)
         await message.add_reaction(u"\U0001F375")
 
     @bot.command(name='Save')
