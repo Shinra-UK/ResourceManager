@@ -58,34 +58,27 @@ def build_options_content(emojis):
 
 
 
-def build_map_embed(center, mobile=False):
-    if mobile:
-        NEIGHBOURS = (("c"))
-    else:
-        NEIGHBOURS = (("nw", "n", "ne"), ("w", "c", "e"), ("sw", "s", "se"))
+def build_map_embed(center, detailed=False):
     center.update_neighbours()
-
     embed = discord.Embed(title=f"__**Map of Surrounding Area: {center.name} - {center.coordinates}:**__",
                           color=0x03f8fc
                           )
-    # timestamp=ctx.message.created_at)
 
-    for line in NEIGHBOURS:
-        for neighbour in line:
-            current_neighbour = getattr(center, neighbour)
-            field_value = utilities.build_table(current_neighbour, "description")
+    if detailed:
+        NEIGHBOURS = (("c"))
+        #timestamp = ctx.message.created_at
+    else:
+        NEIGHBOURS = (("nw", "n", "ne"), ("w", "c", "e"), ("sw", "s", "se"))
+        for line in NEIGHBOURS:
+            for neighbour in line:
+                current_neighbour = getattr(center, neighbour)
+                field_value = utilities.build_table(current_neighbour, "description")
 
-            if field_value == f"":
-                field_value = f"> empty"
-            embed.add_field(name=f'**{current_neighbour.name}**', value=field_value, inline=True)
-        embed.add_field(name='\u200b', value='\u200b', inline=False)
-
+                if field_value == f"":
+                    field_value = f"> empty"
+                embed.add_field(name=f'**{current_neighbour.name}**', value=field_value, inline=True)
+            embed.add_field(name='\u200b', value='\u200b', inline=False)
     return embed
-    # message = await ctx.send(embed=response)
-    #
-    # reactions = [u"\u2B05", u"\u2B06", u"\u2B07", u"\u27A1", u"\U0001F4DD"]
-    # for reaction in reactions:
-    #     await message.add_reaction(reaction)
 
 
 def get_user(uid):
@@ -135,6 +128,13 @@ def discord_integration():
         message = await channel.send(content=content)
         await message.delete(delay=delay)
         return None
+
+    async def get_confirmation(channel, raised_by, content):
+        confirm_emojis = {u"\U0001f44d": True,
+                        u"\U0001f44e": False}
+        return await get_reaction_input(channel, raised_by, content, confirm_emojis)
+
+
 
 
 
@@ -235,7 +235,7 @@ def discord_integration():
             print('Tasks')
         else:
             print("CANCEL")
-            pass
+
 
     @bot.command(name="character")
     @commands.check(is_player)
@@ -414,11 +414,65 @@ def discord_integration():
         else:
             print("CANCEL")
             await map_menu(ctx)
-            pass
 
 
     async def detailed_map(ctx):
-        await map_menu(ctx)
+        raised_by = ctx.author
+        channel = ctx.channel
+        user = get_user(ctx.author.id)
+        center_coordinates = user.viewing_fragment.coordinates
+        center = maps.find_fragment(center_coordinates)
+
+        center.update_neighbours()
+
+        content = "-"
+        embed = build_map_embed(center, detailed=True)
+
+        detailed_map_emojis = {}
+        detailed_map_emojis.update(arrow_emojis)
+        detailed_map_emojis.update({u"\U0001f5fa\uFE0F": 'Summary View',
+                                    u"\U0001F4DD":'Edit Map',
+                                   u"\u274C": 'Return To Menu'})
+
+        detailed_map_selection = await get_reaction_input(channel, raised_by, content, detailed_map_emojis,
+                                                         key=False, embed=embed)
+
+        for i in arrow_emojis:
+            if detailed_map_selection == arrow_emojis[i]:
+                user.viewing_fragment = getattr(user.viewing_fragment, detailed_map_selection)
+                await refresh_map(ctx, detailed=True)
+
+        if detailed_map_selection == 'Summary View':
+            await summary_map(ctx)
+            print('Summary View')
+        elif detailed_map_selection == 'Edit Map':
+            print('Edit Map')
+            await edit_map(ctx)
+        elif detailed_map_selection == 'Return to Menu':
+            print('Return to Menu')
+            await map_menu(ctx)
+        else:
+            print("CANCEL")
+            await map_menu(ctx)
+
+    async def edit_map(ctx):
+        raised_by = ctx.author
+        channel = ctx.channel
+        user = get_user(ctx.author.id)
+
+        content = "Do you want to edit the name of this area?\n"
+        confirmation = await get_confirmation(channel, raised_by, content)
+        if confirmation:
+            pass
+
+        content = "Do you want to add a log entry for this area?\n"
+        confirmation = await get_confirmation(channel, raised_by, content)
+        if confirmation:
+            pass
+
+        await detailed_map(ctx)
+
+
 
     async def refresh_map(ctx, detailed=False):
         user = get_user(ctx.author.id)
