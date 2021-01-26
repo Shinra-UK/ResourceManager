@@ -290,6 +290,7 @@ def discord_integration():
         previously_selected = user.characters.pop(0)
         user.characters.append(previously_selected)
         user.selected_character = user.characters[0]
+        await update_name(ctx, user)
 
         content = f"That's enough {previously_selected.name}!\n" \
                   f"{user.selected_character.name} I choose you!"
