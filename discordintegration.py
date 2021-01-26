@@ -106,8 +106,10 @@ def discord_integration():
             await destruct_message(channel, content="Selection Timed Out.")
            # raise TimeoutError
 
-    async def get_reaction_input(channel, raised_by, content, emojis, timeout=10):
-        content += build_options_content(emojis)
+    async def get_reaction_input(channel, raised_by, content, emojis, timeout=10, key=True):
+        if key == True:
+            content += build_options_content(emojis)
+
         message = await channel.send(content=content)
 
         for emoji in emojis:
