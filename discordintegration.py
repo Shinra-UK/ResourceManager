@@ -217,10 +217,11 @@ def discord_integration():
             print('Change Character')
             await character_menu(ctx)
         elif menu_selection == 'View Map':
-            viewing_fragment = user.viewing_fragment
-            print(user)
-            print(user.viewing_fragment)
-            await embed_map(ctx)
+            await map_menu(ctx)
+            # viewing_fragment = user.viewing_fragment
+            # print(user)
+            # print(user.viewing_fragment)
+            # await embed_map(ctx)
         elif menu_selection == 'Session Log':
             print('Session Log')
         elif menu_selection == 'Tasks':
@@ -272,6 +273,7 @@ def discord_integration():
             await menu(ctx)
         else:
             print("CANCEL")
+            await menu(ctx)
             pass
 
     async def swap_character(ctx):
@@ -340,6 +342,33 @@ def discord_integration():
             await destruct_message(channel, content)
 
         await character_menu(ctx)
+
+    @bot.command(name='map')
+    @commands.check(is_player)
+    async def map_menu(ctx):
+        raised_by = ctx.author
+        channel = ctx.channel
+        user = get_user(ctx.author.id)
+
+        content = f"Hello {user.selected_character.name}.  Please select from the options below:\n"
+        map_menu_emojis = {u"\U0001f939\U0001f3ff": 'Summary View',
+                       u"\U0001f5fa\uFE0F": 'Detailed / Mobile View',
+                       u"\u274C": 'Return To Menu',
+                       }
+
+        map_menu_selection = await get_reaction_input(channel, raised_by, content, map_menu_emojis)
+
+        if map_menu_selection == 'Summary View':
+            print('Summary View')
+        elif map_menu_selection == 'Detailed / Mobile View':
+            print('Detailed / Mobile View')
+        elif map_menu_selection == 'Return to Menu':
+            print('Return to Menu')
+            await menu(ctx)
+        else:
+            print("CANCEL")
+            await menu(ctx)
+            pass
 
 
     @bot.command(name='List')
@@ -442,34 +471,7 @@ def discord_integration():
             message_id = message.id
             message = await channel.fetch_message(message_id)
             await reaction.remove(discord_user)
-            #
-            #             if emoji == u"\u2B05":
-            #                 print("left")
-            #                 print(F'Left - user: {user}')
-            # #target_center = center.nw
-            # # center_coordinates = (0,0,0)
-            # # center = maps.find_fragment(center_coordinates)
-            # # embed = build_map_embed(center)
-            # #center = maps.find_fragment()
-            #                 user.viewing_fragment = user.viewing_fragment.w
-            #                 embed = build_map_embed(user.viewing_fragment)
-            #                 await message.edit(embed=embed)
-            #             elif emoji == u"\u2B06":
-            #                 print("up")
-            #                 user.viewing_fragment = user.viewing_fragment.n
-            #                 embed = build_map_embed(user.viewing_fragment)
-            #                 await message.edit(embed=embed)
-            #             elif emoji == u"\u2B07":
-            #                 user.viewing_fragment = user.viewing_fragment.s
-            #                 embed = build_map_embed(user.viewing_fragment)
-            #                 await message.edit(embed=embed)
-            #             elif emoji == u"\u27A1":
-            #                 user.viewing_fragment = user.viewing_fragment.e
-            #                 embed = build_map_embed(user.viewing_fragment)
-            #                 await message.edit(embed=embed)
-            #             elif emoji == u"\U0001F4DD":
-            #                 print("edit")
-            #                 await message.edit(embed="edit")
+
 
             for i in arrow_emojis:
                 if emoji == i:
