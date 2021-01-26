@@ -1,4 +1,11 @@
 import numbers
+from random import randint
+
+
+def random_tone(emoji):
+    skin_tones = ["", u"\U0001f3fb", "\U0001f3fc", "\U0001f3fd", "\U0001f3fe", "\U0001f3ff"]
+    return emoji + skin_tones[randint(0, len(skin_tones) - 1)]
+
 
 
 # returns the first object found

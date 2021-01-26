@@ -130,12 +130,11 @@ def discord_integration():
         return None
 
     async def get_confirmation(channel, raised_by, content):
-        confirm_emojis = {u"\U0001f44d": True,
-                        u"\U0001f44e": False}
+        thumbs_up = utilities.random_tone(u"\U0001f44d")
+        thumbs_down = utilities.random_tone(u"\U0001f44e")
+        confirm_emojis = {thumbs_up: True,
+                        thumbs_down: False}
         return await get_reaction_input(channel, raised_by, content, confirm_emojis)
-
-
-
 
 
     async def update_name(ctx, user):
