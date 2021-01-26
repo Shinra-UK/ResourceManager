@@ -392,11 +392,13 @@ def discord_integration():
         content = "-"
         embed = build_map_embed(center)
 
-        summary_map_emojis = arrow_emojis
+        summary_map_emojis = {}
+        summary_map_emojis.update(arrow_emojis)
         summary_map_emojis.update({u"\U0001F4F1": 'Detailed / Mobile View',
                                     u"\u274C": 'Return To Menu'})
 
-        summary_map_selection = await get_reaction_input(channel, raised_by, content, summary_map_emojis, key=False, embed=embed)
+        summary_map_selection = await get_reaction_input(channel, raised_by, content, summary_map_emojis,
+                                                         key=False, embed=embed)
 
         for i in arrow_emojis:
             if summary_map_selection == arrow_emojis[i]:
@@ -506,16 +508,13 @@ def discord_integration():
             for reaction in reactions:
                 await message.add_reaction(reaction)
 
-    # @bot.event
-    # async def on_reaction_add(reaction, discord_user):
-    #     if discord_user.bot:
-    #         return
-    #
-    #     if reaction.me:
-    #         emoji = reaction.emoji
-    #         message = reaction.message
-    #
-    #         await reaction.remove(discord_user)
+    @bot.event
+    async def on_reaction_add(reaction, discord_user):
+        if discord_user.bot:
+            return
+
+        if reaction.me:
+            await reaction.remove(discord_user)
 
 
     # @bot.event
@@ -637,8 +636,8 @@ def discord_integration():
                 content = f"One of your names are too long."
                 await destruct_message(channel, content)
                 confirmation = "No"
-            elif utilities.find(characters.Character, "name", character_name):
-                content = f"It looks like the name {name} is already in use."
+            elif utilities.find(characters.Character.directory, "name", character_name):
+                content = f"It looks like the name {character_name} is already in use."
                 await destruct_message(channel, content)
                 confirmation = "No"
             else:
