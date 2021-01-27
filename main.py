@@ -28,7 +28,7 @@ def main():
     # tests.user_tests()
     # tests.persistance_tests()
     # tests.re_tests()
-    tests.menu_tests()
+    # tests.menu_tests()
 
     discordintegration.discord_integration()
     # persistance.save_all()

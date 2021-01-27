@@ -2,9 +2,10 @@ import time
 import utilities
 
 class Log_Entry:
-    def __init__(self, time_stamp, author, entry):
+    def __init__(self, time_stamp, author, name=None, entry=None):
         self.time_stamp = time_stamp
         self.author = author
+        self.name = name
         self.entry = entry
 
 class Fragment:
@@ -12,7 +13,7 @@ class Fragment:
         self.coordinates = coordinates
         self.name = name
         self.description_log = [description_log_entry]
-        #self.description = description
+        self.detailed_log = [description_log_entry]
         self.nw = False
         self.n = False
         self.ne = False
@@ -41,7 +42,7 @@ class Fragment:
 
     @property
     def description(self):
-        return self.description_log[0].entry
+        return self.description_log[-1].entry
 
     directory = []
 

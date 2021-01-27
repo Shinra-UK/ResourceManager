@@ -8,7 +8,7 @@ class User:
         self.character_slots = 1
         self.characters = []
         self.selected_character = None
-        self.viewing_fragment = maps.find_fragment((0, 0, 0))
+        self.viewing_fragment_coordinates = (0, 0, 0)
         self.mobile = False
 
 
@@ -20,6 +20,10 @@ class User:
     @property
     def used_character_slots(self):
         return len(self.characters)
+
+    @property
+    def viewing_fragment(self):
+        return maps.find_fragment(self.viewing_fragment_coordinates)
 
 
 def create_user(uid, player_name):

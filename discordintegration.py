@@ -65,8 +65,12 @@ def build_map_embed(center, detailed=False):
                           )
 
     if detailed:
-        NEIGHBOURS = (("c"))
-        #timestamp = ctx.message.created_at
+        field_value = utilities.build_table(center, "description")
+        if field_value == f"":
+            field_value = f"> empty"
+        embed.add_field(name=f'**{center.name}**', value=field_value, inline=True)
+
+        pass
     else:
         NEIGHBOURS = (("nw", "n", "ne"), ("w", "c", "e"), ("sw", "s", "se"))
         for line in NEIGHBOURS:
@@ -224,10 +228,6 @@ def discord_integration():
             await character_menu(ctx)
         elif menu_selection == 'View Map':
             await map_menu(ctx)
-            # viewing_fragment = user.viewing_fragment
-            # print(user)
-            # print(user.viewing_fragment)
-            # await embed_map(ctx)
         elif menu_selection == 'Session Log':
             print('Session Log')
         elif menu_selection == 'Tasks':
@@ -383,7 +383,7 @@ def discord_integration():
         raised_by = ctx.author
         channel = ctx.channel
         user = get_user(ctx.author.id)
-        center_coordinates = user.viewing_fragment.coordinates
+        center_coordinates = user.viewing_fragment_coordinates
         center = maps.find_fragment(center_coordinates)
 
         center.update_neighbours()
@@ -401,7 +401,9 @@ def discord_integration():
 
         for i in arrow_emojis:
             if summary_map_selection == arrow_emojis[i]:
-                user.viewing_fragment = getattr(user.viewing_fragment, summary_map_selection)
+                next_fragment = getattr(user.viewing_fragment, summary_map_selection)
+                user.viewing_fragment_coordinates = next_fragment.coordinates
+                #user.viewing_fragment = getattr(user.viewing_fragment, summary_map_selection)
                 await refresh_map(ctx)
 
         if summary_map_selection == 'Detailed / Mobile View':
@@ -419,8 +421,9 @@ def discord_integration():
         raised_by = ctx.author
         channel = ctx.channel
         user = get_user(ctx.author.id)
-        center_coordinates = user.viewing_fragment.coordinates
+        center_coordinates = user.viewing_fragment_coordinates
         center = maps.find_fragment(center_coordinates)
+        print(center.coordinates)
 
         center.update_neighbours()
 
@@ -438,7 +441,9 @@ def discord_integration():
 
         for i in arrow_emojis:
             if detailed_map_selection == arrow_emojis[i]:
-                user.viewing_fragment = getattr(user.viewing_fragment, detailed_map_selection)
+                next_fragment = getattr(user.viewing_fragment, detailed_map_selection)
+                user.viewing_fragment_coordinates = next_fragment.coordinates
+                #user.viewing_fragment = getattr(user.viewing_fragment, detailed_map_selection)
                 await refresh_map(ctx, detailed=True)
 
         if detailed_map_selection == 'Summary View':
@@ -458,16 +463,38 @@ def discord_integration():
         raised_by = ctx.author
         channel = ctx.channel
         user = get_user(ctx.author.id)
+        center_coordinates = user.viewing_fragment_coordinates
+        center = maps.find_fragment(center_coordinates)
+        old_name = center.name
 
-        content = "Do you want to edit the name of this area?\n"
+        content = f"Do you want to edit the name of this area?  Currently {old_name}\n"
         confirmation = await get_confirmation(channel, raised_by, content)
         if confirmation:
-            pass
+            content = f"What shall we call the area formerly known as {old_name}?"
+            name = await get_input(channel, raised_by, content=content)
+            if name:
+                await destruct_message(channel, f"Ok, we'll rename the area to {name}")
+                name_entry = maps.Log_Entry(time.time(), user.selected_character, name=name)
+                center.detailed_log.append(name_entry)
+                center.name = name
+            else:
+                name = center.name
+                await destruct_message(channel, f"Ok, we'll keep the name {name}")
+        else:
+            name = center.name
+            await destruct_message(channel, f"Ok, we'll keep the name {name}")
 
-        content = "Do you want to add a log entry for this area?\n"
+        content = f"Do you want to add a log entry for {name}?\n"
         confirmation = await get_confirmation(channel, raised_by, content)
         if confirmation:
-            pass
+            content = f"Please enter the log entry for {name}"
+            entry = await get_input(channel, raised_by, content=content)
+            if entry:
+                await destruct_message(channel, f"Ok, we'll add the following log entry:\n{entry}")
+                log_entry = maps.Log_Entry(time.time(), user.selected_character, entry=entry)
+                center.description_log.append(log_entry)
+                center.detailed_log.append(log_entry)
+
 
         await detailed_map(ctx)
 
@@ -507,7 +534,7 @@ def discord_integration():
         user = get_user(ctx.author.id)
         if center_coordinates == ():
             try:
-                center_coordinates = user.viewing_fragment.coordinates
+                center_coordinates = user.viewing_fragment_coordinates
             except:
                 center_coordinates = (0, 0, 0)
         elif isinstance(center_coordinates[0], str):
