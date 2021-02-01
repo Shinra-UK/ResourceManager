@@ -82,7 +82,7 @@ def create_fragment(name, coordinates, description):
         existing.msg = f'{existing.name} is already here.'
         return existing
     else:
-        new = Fragment(name, coordinates, Log_Entry(time.time(), "System", description))
+        new = Fragment(name, coordinates, Log_Entry(time.ctime(time.time()), "System", description))
         print(new.name + " Has been created")
         Fragment.directory.append(new)
         new.msg = f'{new.name} has been drawn!'
@@ -99,6 +99,7 @@ def find_fragment(target_coordinates):
         return existing
     else:
         return create_fragment("Unmapped Area", target_coordinates, "?????")
+        return create_fragment("????", target_coordinates, "?????")
         #unmapped_fragment
         # return None
 

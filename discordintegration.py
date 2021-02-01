@@ -56,6 +56,42 @@ def build_options_content(emojis):
         content += line
     return content
 
+def build_detailed_map_pages(center):
+    def add_page(_pages, center, content):
+        page_number = len(_pages)
+        header = f"__**page {page_number}\nLog Entries for: {center.name} - {center.coordinates}:**__\n"
+        page = header + content
+        _pages.append(page)
+        return _pages
+
+
+    center.update_neighbours()
+
+    pages = []
+    content = ""
+
+    for i in center.detailed_log:
+        if len(content) >= 850:
+            pages = add_page(pages, center, content)
+            content = ""
+        field_name = f'>**{i.time_stamp} - {i.author}**:\n'
+        content += field_name
+        if i.entry:
+            field_value = f"{i.entry}\n"
+            # embed.add_field(name=field_name, value=field_value, inline=False)
+            content += field_value
+        elif i.name:
+            field_value = f"I am renaming this as: {i.name}\n"
+            # embed.add_field(name=field_name, value=field_value, inline=False)
+            content += field_value
+    #Add the final page
+    pages = add_page(pages, center, content)
+    # page_number = len(pages)
+    # header = f"__**page {page_number}Log Entries for: {center.name} - {center.coordinates}:**__\n"
+    # page = header + content
+    # pages.append(page)
+
+    return pages
 
 
 def build_map_embed(center, detailed=False):
@@ -63,26 +99,41 @@ def build_map_embed(center, detailed=False):
     embed = discord.Embed(title=f"__**Map of Surrounding Area: {center.name} - {center.coordinates}:**__",
                           color=0x03f8fc
                           )
+    content = ""
 
     if detailed:
-        field_value = utilities.build_table(center, "description")
-        if field_value == f"":
-            field_value = f"> empty"
-        embed.add_field(name=f'**{center.name}**', value=field_value, inline=True)
+        for i in center.detailed_log:
+            if len(content) >= 1000:
+                pass
+            field_name = f'**{i.time_stamp} - {i.author}**:\n'
+            content += field_name
+            if i.entry:
+                field_value = f"> {i.entry}\n\n"
+                # embed.add_field(name=field_name, value=field_value, inline=False)
+                content += field_value
+            elif i.name:
+                field_value = f"I am renaming this as: {i.name}\n\n"
+                # embed.add_field(name=field_name, value=field_value, inline=False)
+                content += field_value
+        return content
 
-        pass
+
+        # field_value = f'> {center.description}'
+        # if field_value == f"":
+        #     field_value = f"> ????"
+        # embed.add_field(name=f'**{center.name}**', value=field_value, inline=True)
     else:
         NEIGHBOURS = (("nw", "n", "ne"), ("w", "c", "e"), ("sw", "s", "se"))
         for line in NEIGHBOURS:
             for neighbour in line:
                 current_neighbour = getattr(center, neighbour)
-                field_value = utilities.build_table(current_neighbour, "description")
+                field_value = f'> {current_neighbour.description}'
 
                 if field_value == f"":
-                    field_value = f"> empty"
+                    field_value = f"> ????"
                 embed.add_field(name=f'**{current_neighbour.name}**', value=field_value, inline=True)
             embed.add_field(name='\u200b', value='\u200b', inline=False)
-    return embed
+        return embed
 
 
 def get_user(uid):
@@ -90,11 +141,14 @@ def get_user(uid):
 
 
 def discord_integration():
-    async def get_input(channel, raised_by, content="Beep,boop,buzzzt...ERROR", delay=0, timeout=30):
+    async def get_input(channel, raised_by, content="Beep,boop,buzzzt...ERROR", delay=0, timeout=30, title=True):
         message = await channel.send(content=content)
         try:
             user_input = await bot.wait_for('message', check=check_is_author(channel, raised_by), timeout=timeout)
-            stripped_user_input = user_input.content.title().strip()
+            if not title:
+                stripped_user_input = user_input.content.strip()
+            else:
+                stripped_user_input = user_input.content.title().strip()
             await user_input.delete()
             await message.delete(delay=delay)
             return stripped_user_input
@@ -428,7 +482,8 @@ def discord_integration():
         center.update_neighbours()
 
         content = "-"
-        embed = build_map_embed(center, detailed=True)
+        pages = build_detailed_map_pages(center)
+        content = pages.pop(-1)
 
         detailed_map_emojis = {}
         detailed_map_emojis.update(arrow_emojis)
@@ -436,8 +491,10 @@ def discord_integration():
                                     u"\U0001F4DD":'Edit Map',
                                    u"\u274C": 'Return To Menu'})
 
-        detailed_map_selection = await get_reaction_input(channel, raised_by, content, detailed_map_emojis,
-                                                         key=False, embed=embed)
+        for page in pages:
+            await destruct_message(channel=channel, content=page)
+
+        detailed_map_selection = await get_reaction_input(channel, raised_by, content, detailed_map_emojis, key=False)
 
         for i in arrow_emojis:
             if detailed_map_selection == arrow_emojis[i]:
@@ -473,10 +530,14 @@ def discord_integration():
             content = f"What shall we call the area formerly known as {old_name}?"
             name = await get_input(channel, raised_by, content=content)
             if name:
-                await destruct_message(channel, f"Ok, we'll rename the area to {name}")
-                name_entry = maps.Log_Entry(time.time(), user.selected_character, name=name)
-                center.detailed_log.append(name_entry)
-                center.name = name
+                if len(name) <= 50:
+                    await destruct_message(channel, f"Ok, we'll rename the area to {name}")
+                    name_entry = maps.Log_Entry(time.ctime(time.time()), user.selected_character.name, name=name)
+                    center.detailed_log.append(name_entry)
+                    center.name = name
+                else:
+                    await destruct_message(channel, f"Unable to set that name as it is too long.")
+                    name = center.name
             else:
                 name = center.name
                 await destruct_message(channel, f"Ok, we'll keep the name {name}")
@@ -488,12 +549,15 @@ def discord_integration():
         confirmation = await get_confirmation(channel, raised_by, content)
         if confirmation:
             content = f"Please enter the log entry for {name}"
-            entry = await get_input(channel, raised_by, content=content)
+            entry = await get_input(channel, raised_by, content=content, title=False)
             if entry:
-                await destruct_message(channel, f"Ok, we'll add the following log entry:\n{entry}")
-                log_entry = maps.Log_Entry(time.time(), user.selected_character, entry=entry)
-                center.description_log.append(log_entry)
-                center.detailed_log.append(log_entry)
+                if len(entry) <= 900:
+                    await destruct_message(channel, f"Ok, we'll add the following log entry:\n{entry}")
+                    log_entry = maps.Log_Entry(time.ctime(time.time()), user.selected_character.name, entry=entry)
+                    center.description_log.append(log_entry)
+                    center.detailed_log.append(log_entry)
+                else:
+                    await destruct_message(channel, f"Unable to add that entry as it is too long.")
 
 
         await detailed_map(ctx)
