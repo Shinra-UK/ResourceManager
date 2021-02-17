@@ -572,6 +572,38 @@ def discord_integration():
         else:
             await summary_map(ctx)
 
+    @bot.command(name='log')
+    @commands.check(is_player)
+    async def log_menu(ctx):
+        raised_by = ctx.author
+        channel = ctx.channel
+        user = get_user(ctx.author.id)
+
+        content = f"Hello {user.selected_character.name}.  Please select from the options below:\n"
+        log_menu_emojis = {u"\U0001f5fa\uFE0F": 'Summary View',
+                           u"\U0001F4F1": 'Detailed / Mobile View',
+                           u"\u274C": 'Return To Menu',
+                           }
+        #If user is an admin add this emoji
+        #log_menu_emojis += {u"\U0001f5fa\uFE0F": 'Generate Log'}
+
+        log_menu_selection = await get_reaction_input(channel, raised_by, content, log_menu_emojis)
+
+        if log_menu_selection == 'Generate Log':
+            await summary_map(ctx)
+            print('Generate Log')
+        elif log_menu_selection == 'Personal Logs':
+            print('Personal Logs')
+        elif log_menu_selection == 'All Logs':
+            print('All Logs')
+        elif log_menu_selection == 'Return to Menu':
+            print('Return to Menu')
+            await menu(ctx)
+        else:
+            print("CANCEL")
+            await menu(ctx)
+            pass
+
 
     @bot.command(name='List')
     @commands.check(is_admin)
